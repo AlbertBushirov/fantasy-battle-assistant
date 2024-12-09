@@ -1,0 +1,152 @@
+@use 'variables' as *;
+@use 'mixins';
+
+html {
+	scroll-behavior: smooth;
+}
+
+.card {
+	@include mixins.flex(column);
+	border: 0;
+	border-radius: $defaultBorderRadius;
+	background-color: $primary;
+	color: white;
+	padding: 20px;
+
+	&_tehList {
+		flex-direction: row;
+		background-color: transparent;
+
+		.card__title {
+			flex-grow: 0;
+			margin-bottom: 130px;
+		}
+	}
+
+	&_tehList_wheels {
+		flex-direction: row;
+		background-color: transparent;
+
+		.card__title {
+			flex-grow: 0;
+		}
+
+		.wheels_box {
+			margin-block: auto;
+		}
+	}
+
+	&_full {
+		flex-direction: row;
+		background-color: transparent;
+
+		.card__title {
+			flex-grow: 0;
+		}
+	}
+
+	&_compact {
+		flex-direction: row;
+		background-color: transparent;
+		align-items: center;
+		border-radius: 0;
+
+		.card__title {
+			flex-grow: 1;
+		}
+	}
+
+	&__column {
+		@include mixins.flex(column);
+		align-items: flex-start;
+	}
+
+	&__row {
+		@include mixins.flex(row);
+		align-items: center;
+		gap: $defaultPadding;
+	}
+
+	&__image {
+		height: 250px;
+		margin-right: 2rem;
+		margin-block: 1rem;
+	}
+	&__description {
+		height: 200px;
+		margin-block: 1rem;
+		transition: all 0.3s ease;
+	}
+
+	&__title {
+		font-size: 20px;
+		margin: 0;
+	}
+	&__text {
+		flex-grow: 1;
+	}
+	&__category {
+		font-size: 12px;
+		padding: 0.5rem 1.25rem;
+		border-radius: 2.5rem;
+		margin-bottom: 12px;
+		color: $primary;
+
+		&_soft {
+			background-color: $category1;
+		}
+		&_hard {
+			background-color: $category5;
+		}
+		&_other {
+			background-color: $category2;
+		}
+		&_additional {
+			background-color: $category3;
+		}
+		&_nekromant {
+			background-color: $category6;
+		}
+		&_charodey {
+			background-color: $category7;
+		}
+		&_button {
+			background-color: $category4;
+		}
+	}
+	&__price {
+		font-size: 15px;
+		font-weight: 300;
+		margin-top: 15px;
+		text-align: right;
+		&_basket {
+			font-size: 20px;
+			font-weight: 300;
+			margin-left: 15px;
+		}
+	}
+	&__gallery {
+		padding: 0.5rem 1.25rem;
+		border-radius: 2.5rem;
+		margin-bottom: 12px;
+	}
+}
+
+.style_outline {
+	border-style: hidden;
+	background: none;
+	cursor: pointer;
+	outline: none; /* Убираем стандартный outline */
+}
+
+.style_outline:hover {
+	outline: 2px solid blue; /* Цвет и размер обводки при наведении */
+}
+
+.style_outline:focus {
+	outline: 2px solid blue; /* Цвет и размер обводки при нажатии (или после фокуса) */
+}
+
+.wheels_box {
+	justify-content: center;
+}

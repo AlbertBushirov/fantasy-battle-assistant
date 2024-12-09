@@ -1,0 +1,50 @@
+@use 'variables' as *;
+@use 'mixins';
+
+.button {
+	@include mixins.button($primary, white, $hover);
+	border: 0;
+
+	&_alt {
+		@include mixins.button(white, $primaryLight, $primaryLight);
+		border: $defaultBorder;
+		&:hover {
+			border: $hoverBorder;
+		}
+	}
+
+	&_alt-active {
+		@include mixins.button(white, $primaryLight, $primaryLight);
+		border: $hoverBorder;
+	}
+}
+
+.button_gallery {
+	position: relative;
+}
+
+.input {
+	display: inline-flex;
+	align-items: center;
+	user-select: none;
+	border: 0.5px #fff;
+}
+
+.volume-control {
+	display: flex;
+	align-items: center;
+	background-color: #fff;
+	padding: 20px;
+	border-radius: 10px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.volume-level {
+	font-size: 2rem;
+	width: 50px;
+	text-align: center;
+	padding: 10px;
+	background-color: #f5f5f5;
+	border-radius: 5px;
+	transition: transform 0.3s ease;
+}
