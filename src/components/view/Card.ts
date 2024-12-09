@@ -2,20 +2,11 @@ import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { EventEmitter } from '../base/events';
 import { AppData } from '../data/AppData';
+import {ICardItem} from "../../types";
 
 interface ICardActions {
-	onClick: (event: MouseEvent) => void;
-}
-
-interface ICard {
-	id: string;
-	title: string;
-	category: string;
-	description: string;
-	image: string;
-	price: number | null;
-	inBasket: boolean;
-	button: string;
+	onClick: (event: { isWheels?:  boolean, price?: number }) => void;
+	onChange?: (data: { isWheels?:  boolean, price?: number }) => void;
 }
 
 interface Category {
@@ -36,7 +27,7 @@ const category: Category = {
 	дополнительное: 'card__category_additional',
 };
 
-export class Card extends Component<ICard> {
+export class Card extends Component<ICardItem> {
 	protected _title: HTMLElement;
 	protected _image?: HTMLImageElement;
 	protected _category?: HTMLElement;
@@ -49,11 +40,13 @@ export class Card extends Component<ICard> {
 	protected decreaseButton: HTMLButtonElement;
 	public _inputWheels: HTMLInputElement;
 	protected basketElement?: BasketElement;
+	protected wheelsPrice?: number
+
 
 	constructor(
 		protected blockName: string,
 		container: HTMLElement,
-		action?: ICardActions
+		action?: ICardActions,
 	) {
 		super(container, new EventEmitter()); // Инициализация EventEmitter
 		this._category = container.querySelector('.card__category');
@@ -76,22 +69,27 @@ export class Card extends Component<ICard> {
 
 		// Добавляем обработчик события клика
 		if (action?.onClick) {
+			
+			const handleAction = () => {
+				action.onClick({ isWheels: this._inputWheels?.checked, price: this.price })
+			}
+			
 			if (this._button) {
-				this._button.addEventListener('click', action.onClick);
+				this._button.addEventListener('click', handleAction);
 			} else {
-				container.addEventListener('click', action.onClick);
+				container.addEventListener('click', handleAction);
 			}
 		}
 	}
 
 	updateVolume() {
-		let volume: number = 0;
+		const volume = 0;
 		this.volumeLevel.textContent = volume.toString();
 		this.volumeLevel.style.transform = `scale(${1 + volume / 10})`; // Увеличиваем размер в зависимости от громкости
 	}
 
 	switch() {
-		let volume: number = 0;
+		let volume = 0;
 		this.increaseButton.addEventListener('click', () => {
 			if (volume < 2) {
 				volume += 0.1;
@@ -117,7 +115,7 @@ export class Card extends Component<ICard> {
 	getPriceAdjustmentBasedOnWheels(): number {
 		if (this._inputWheels) {
 			// Если инпут существует, проверяем его состояние
-			return this._inputWheels.checked ? 10 : -10;
+			return this._inputWheels.checked ? this.wheelsPrice : -this.wheelsPrice;
 		} else {
 			console.warn('Input wheels element not found!');
 			return 0; // Возвращаем 0, если элемент не найден
@@ -210,6 +208,15 @@ export class Card extends Component<ICard> {
 		this.setText(this._category, value);
 		this.toggleClass(this._category, category[value], true);
 	}
+	
+	set isWheels(value: boolean) {
+		this._inputWheels.checked = value
+	}
+	
+	render(data: ICardItem): HTMLElement {
+		
+		return super.render(data)
+	}
 }
 
 export interface IBasketItem {
@@ -226,12 +233,13 @@ export class BasketElement extends Component<IBasketItem> {
 	protected _image?: HTMLImageElement;
 	protected _description?: HTMLImageElement;
 	protected _inputWheels: HTMLInputElement;
+	protected wheelsPrice?: number
 
 	constructor(
 		container: HTMLElement,
 		index: number,
 		events: EventEmitter,
-		action?: ICardActions
+		protected action?: ICardActions
 	) {
 		super(container);
 
@@ -247,15 +255,9 @@ export class BasketElement extends Component<IBasketItem> {
 		) as HTMLInputElement;
 
 		this.events = events;
-		//Обработчик события клика для кнопки
-		if (action?.onClick) {
-			if (this._button) {
-				this._button.addEventListener('click', action.onClick);
-			}
-		}
 
 		// Инициализируем цену на основе текущего состояния input_wheels
-		this.updatePrice();
+		// this.updatePrice();
 
 		// Обработчик события изменения состояния input_wheels
 		if (this._inputWheels) {
@@ -264,15 +266,16 @@ export class BasketElement extends Component<IBasketItem> {
 
 		// Обработчик события клика для кнопки
 		if (action?.onClick) {
+			const handleClick = () => action.onClick
 			if (this._button) {
-				this._button.addEventListener('click', action.onClick);
+				this._button.addEventListener('click', handleClick);
 			}
 		}
 	}
 
 	// Метод для обновления цены в зависимости от состояния input_wheels
 	getPriceAdjustment(): number {
-		return this._inputWheels && this._inputWheels.checked ? 10 : -10;
+		return this._inputWheels && this._inputWheels.checked ? this.wheelsPrice : -this.wheelsPrice;
 	}
 
 	// Метод для обновления цены
@@ -286,10 +289,13 @@ export class BasketElement extends Component<IBasketItem> {
 
 		this.priceValue = currentPrice;
 
-		this.events.emit('basket:update-total');
+		this.action.onChange({
+			price: currentPrice,
+			isWheels: this._inputWheels?.checked
+		})
 	}
 
-	private _priceValue: number = 0;
+	private _priceValue = 0;
 
 	get priceValue() {
 		return this._priceValue;
@@ -321,5 +327,9 @@ export class BasketElement extends Component<IBasketItem> {
 	// Отображает цену товаров в корзине
 	set price(value: number) {
 		this.setText(this._price, `${value} очков`);
+	}
+
+	set isWheels(value: boolean) {
+		this._inputWheels.checked = value
 	}
 }

@@ -21,8 +21,7 @@ export interface IOrderForm {
 
 export class AppData extends Model<IProductItem> {
 	basket: ICardItem[] = [];
-	cardsTehList: ITehListEtem[] = [];
-	items: ICardItem[] | ITehListEtem[];
+	items: ICardItem[];
 	order: IOrderForm = {
 		payment: '',
 		email: '',
@@ -42,11 +41,7 @@ export class AppData extends Model<IProductItem> {
 
 	//Проверка, находится ли продукт в заказе.
 	productOrder(item: ICardItem): boolean {
-		return this.basket.includes(item);
-	}
-
-	tehListOrder(item: ITehListEtem): boolean {
-		return this.cardsTehList.includes(item);
+		return Boolean(this.basket.find(basketItem => basketItem.id === item.id));
 	}
 
 	//Очистить корзину после заказа
@@ -91,7 +86,7 @@ export class AppData extends Model<IProductItem> {
 	}
 
 	//Добавление каталога карточек на главную страницу
-	setCatalog(item: (ICardItem | ITehListEtem)[]) {
+	setCatalog(item: ICardItem[]) {
 		this.items = item;
 		this.emitChanges('items:changed', { catalog: this.items });
 	}

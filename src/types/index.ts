@@ -9,36 +9,34 @@ export interface IProductItem {
 }
 
 // Товар
-export interface ICardItem {
+export type ICardItem = IListItem | ITehListEtem | ITehListWheelsEtem;
+
+export interface IBaseCardItem {
+	type: string;
 	id: string;
 	title: string;
+	inBasket: boolean;
+	price: number | null;
 	category: string;
+	button: string;
+}
+
+export interface IListItem extends IBaseCardItem {
+	type: 'list';
 	description: string;
 	image: string;
-	price: number | null;
-	inBasket: boolean;
-	button: string;
 }
 
-export interface ITehListEtem {
-	id: string;
-	title: string;
-	category: string;
+export interface ITehListEtem extends IBaseCardItem{
+	type: 'tech'
 	image: string;
-	price: number | null;
-	inBasket: boolean;
-	button: string;
 }
 
-export interface ITehListWheelsEtem {
-	id: string;
-	title: string;
-	category: string;
+export interface ITehListWheelsEtem extends IBaseCardItem {
+	type: 'wheels'
+	wheelsPrice: number;
+	isWheels?: boolean;
 	image: string;
-	price: number | null;
-	inBasket: boolean;
-	button: string;
-	Input: boolean;
 }
 
 export interface IFightingMachineEtem {

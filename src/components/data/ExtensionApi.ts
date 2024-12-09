@@ -1,4 +1,4 @@
-import { ICardItem, IOrder, ITehListEtem } from '../../types';
+import {ICardItem, IListItem, IOrder, ITehListEtem, ITehListWheelsEtem} from '../../types';
 import { Api } from '../base/api';
 import { localArmy } from '../../types/warriorsData';
 import { localWeapons, localWeaponsWheels } from '../../types/weaponsData';
@@ -24,7 +24,7 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 	}
 
 	// Функция для обработки путей изображений в description
-	getWarriorsItem(id: string): Promise<ICardItem> {
+	getWarriorsItem(id: string): Promise<IListItem> {
 		const item = localArmy.find((i) => i.id === id);
 		if (!item) {
 			return Promise.reject('Item not found');
@@ -44,6 +44,7 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 
 		return Promise.resolve({
 			...item,
+			type: 'list',
 			image: imageUrl, // Обновленный путь для картинки
 			description: descriptionHtml, // Обновленное описание
 		});
@@ -62,12 +63,13 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 				: `${process.env.PUBLIC_URL}${item.image}`;
 
 		return Promise.resolve({
+			type: 'tech',
 			...item,
 			image: imageUrl, // Обновленный путь для картинки
 		});
 	}
 
-	getWeaponsWheelsItem(id: string): Promise<ITehListEtem> {
+	getWeaponsWheelsItem(id: string): Promise<ITehListWheelsEtem> {
 		const item = localWeaponsWheels.find((i) => i.id === id);
 		if (!item) {
 			return Promise.reject('Item not found');
@@ -80,7 +82,10 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 				: `${process.env.PUBLIC_URL}${item.image}`;
 
 		return Promise.resolve({
+			type: 'wheels',
 			...item,
+			wheelsPrice: 10,
+			isWheels: false,
 			image: imageUrl, // Обновленный путь для картинки
 		});
 	}
@@ -101,6 +106,7 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 
 				return {
 					...item,
+					type: 'list',
 					image: imageUrl, // Обработанный путь для картинки
 					description: descriptionHtml, // Обновленное описание
 				};
@@ -118,13 +124,14 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 
 				return {
 					...item,
+					type: 'tech',
 					image: imageUrl, // Обработанный путь для картинки
 				};
 			})
 		);
 	}
 
-	getWeaponsWheelsList(): Promise<ITehListEtem[]> {
+	getWeaponsWheelsList(): Promise<ITehListWheelsEtem[]> {
 		return Promise.resolve(
 			localWeaponsWheels.map((item) => {
 				const imageUrl =
@@ -134,6 +141,8 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 
 				return {
 					...item,
+					type: 'wheels',
+					wheelsPrice: 10,
 					image: imageUrl, // Обработанный путь для картинки
 				};
 			})
