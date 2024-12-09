@@ -1,6 +1,6 @@
 import './scss/styles.scss';
 import { API_URL, CDN_URL } from './utils/constants';
-import { ICardItem, IOrder, ITehListEtem } from './types/index';
+import {ICardItem, IOrder, ITehListEtem, ITehListWheelsEtem} from './types/index';
 import { EventEmitter } from './components/base/events';
 import { WebLarekAPI } from './components/data/ExtensionApi';
 import {
@@ -57,12 +57,7 @@ events.on<CatalogChangeEvent>('items:changed', () => {
 			onClick: () => events.emit('card:select', item),
 		});
 
-		return card.render({
-			title: item.title,
-			image: item.image,
-			price: item.price,
-			category: item.category,
-		});
+		return card.render(item);
 	});
 });
 
@@ -100,15 +95,20 @@ events.on('basket:changed', () => {
 			onClick: () => {
 				appData.removeFromBasket(item.id);
 			},
+			onChange: ({ price, isWheels }) => {
+				appData.basket[index].price = price
+				if (item.type === 'wheels') {
+					(appData.basket[index] as ITehListWheelsEtem).isWheels = isWheels
+				}
+				basket.total = appData.getTotalPrice()
+			}
 		});
 
 		total += item.price;
 
-		return card.render({
-			price: item.price,
-			image: item.image,
-			description: item.description,
-		});
+		return card.render(
+			item
+		);
 	});
 
 	basket.total = total;
@@ -117,7 +117,7 @@ events.on('basket:changed', () => {
 // Обработчик изменения предпросмотра продукта и добавления в корзину
 
 events.on('preview:changed', (item: ICardItem) => {
-	if (item) {
+	if (item && item.type === 'list') {
 		api.getWarriorsItem(item.id).then((res) => {
 			item.id = res.id;
 			item.category = res.category;
@@ -142,11 +142,7 @@ events.on('preview:changed', (item: ICardItem) => {
 			card.buttonTitle = buttonTitle;
 			modal.render({
 				content: card.render({
-					title: item.title,
-					description: item.description,
-					image: item.image,
-					price: item.price,
-					category: item.category,
+					...item,
 					button: buttonTitle,
 				}),
 			});
@@ -154,8 +150,8 @@ events.on('preview:changed', (item: ICardItem) => {
 	}
 });
 
-events.on('preview:changed', (item: ITehListEtem) => {
-	if (item) {
+events.on('preview:changed', (item: ICardItem) => {
+	if (item && item.type === 'tech') {
 		api.getWeaponsItem(item.id).then((res) => {
 			item.id = res.id;
 			item.category = res.category;
@@ -165,7 +161,7 @@ events.on('preview:changed', (item: ITehListEtem) => {
 
 			const card = new Card('card', cloneTemplate(cardTehlistTemplate), {
 				onClick: () => {
-					if (appData.tehListOrder(item)) {
+					if (appData.productOrder(item)) {
 						appData.removeFromBasket(item.id);
 						modal.close();
 					} else {
@@ -173,16 +169,13 @@ events.on('preview:changed', (item: ITehListEtem) => {
 					}
 				},
 			});
-			const buttonTitle: string = appData.tehListOrder(item)
+			const buttonTitle: string = appData.productOrder(item)
 				? 'Убрать'
 				: 'Добавить';
 			card.buttonTitle = buttonTitle;
 			modal.render({
 				content: card.render({
-					title: item.title,
-					image: item.image,
-					price: item.price,
-					category: item.category,
+					...item,
 					button: buttonTitle,
 				}),
 			});
@@ -190,8 +183,8 @@ events.on('preview:changed', (item: ITehListEtem) => {
 	}
 });
 
-events.on('preview:changed', (item: ITehListEtem) => {
-	if (item) {
+events.on('preview:changed', (item: ICardItem) => {
+	if (item && item.type === 'wheels') {
 		api.getWeaponsWheelsItem(item.id).then((res) => {
 			item.id = res.id;
 			item.category = res.category;
@@ -200,26 +193,23 @@ events.on('preview:changed', (item: ITehListEtem) => {
 			item.price = res.price;
 
 			const card = new Card('card', cloneTemplate(cardTehlistWheelsTemplate), {
-				onClick: () => {
-					if (appData.tehListOrder(item)) {
+				onClick: (formData: { isWheels?:  boolean, price: number }) => {
+					if (appData.productOrder(item)) {
 						appData.removeFromBasket(item.id);
 						modal.close();
 					} else {
-						events.emit('product:add', item);
+						events.emit('product:add', {...item, isWheels: formData.isWheels, price: formData.price ?? item.price});
 					}
 				},
 			});
-			const buttonTitle: string = appData.tehListOrder(item)
+			const buttonTitle: string = appData.productOrder(item)
 				? 'Убрать'
 				: 'Добавить';
 			card.buttonTitle = buttonTitle;
 			card.BasedOnWheels();
 			modal.render({
 				content: card.render({
-					title: item.title,
-					image: item.image,
-					price: item.price,
-					category: item.category,
+					...item,
 					button: buttonTitle,
 				}),
 			});
