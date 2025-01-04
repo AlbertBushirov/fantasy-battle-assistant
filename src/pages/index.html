@@ -12,7 +12,7 @@
 		<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#000000" />
 		<meta name="msapplication-TileColor" content="#000000" />
 
-		<title>FB assistant</title>
+		<title>БF assistant</title>
 		<meta name="description" content="" />
 	</head>
 	<body class="page">
@@ -235,7 +235,7 @@
 					<span class="card__category">другое</span>
 					<h2 class="card__title">Бэкенд-антистресс</h2>
 					<div class="card__row">
-						<button class="button card__button">В корзину</button>
+						<button class="button card__button">Добавить</button>
 						<span class="card__price">1000 синапсов</span>
 					</div>
 				</div>
@@ -248,12 +248,12 @@
 				<div class="card__column">
 					<span class="card__category">другое</span>
 					<h2 class="card__title">Бэкенд-антистресс</h2>
-					<div class="wheels_box">
+					<label class="wheels_box">
 						<span>Шины</span>
 						<input class="input_wheels" type="checkbox" />
-					</div>
+					</label>
 					<div class="card__row">
-						<button class="button card__button">В корзину</button>
+						<button class="button card__button">Добавить</button>
 						<span class="card__price">1000 синапсов</span>
 					</div>
 				</div>
@@ -261,20 +261,61 @@
 		</template>
 
 		<template id="card-fighting_machine">
-			<div class="card card-fighting_machine" id="card-tehlist">
-				<img class="card__image" src="" alt="арм лист отряда" />
+			<div class="card card_fighting_machine" id="card-fighting_machine">
+				<img
+					class="card__image img__machine"
+					src=""
+					alt="арм лист боевой машины"
+				/>
 				<div class="card__column">
 					<span class="card__category">другое</span>
 					<h2 class="card__title">Бэкенд-антистресс</h2>
+					<div class="weapon">
+						<span class="weapon_tittle1">1000 синапсов</span>
+						<div class="volume-control">
+							<button class="button switch" id="decrease1">-</button>
+							<div id="volume-level1" class="volume-level">
+								<span class="weapon_numper">0</span>
+							</div>
+							<button class="button switch" id="increase1">+</button>
+						</div>
+						<span class="weapon_tittle2">1000 синапсов</span>
+						<div class="volume-control">
+							<button class="button switch" id="decrease2">-</button>
+							<div id="volume-level2" class="volume-level">
+								<span class="weapon_numper">0</span>
+							</div>
+							<button class="button switch" id="increase2">+</button>
+						</div>
+						<span class="weapon_tittle3">1000 синапсов</span>
+						<div class="volume-control">
+							<button class="button switch" id="decrease3">-</button>
+							<div id="volume-level3" class="volume-level">
+								<span class="weapon_numper">0</span>
+							</div>
+							<button class="button switch" id="increase3">+</button>
+						</div>
+						<span class="weapon_tittle4">1000 синапсов</span>
+						<div class="volume-control">
+							<button class="button switch" id="decrease4">-</button>
+							<div id="volume-level4" class="volume-level">
+								<span class="weapon_numper">0</span>
+							</div>
+							<button class="button switch" id="increase4">+</button>
+						</div>
+						<span class="weapon_tittle5">1000 синапсов</span>
+						<div class="volume-control">
+							<button class="button switch" id="decrease5">-</button>
+							<div id="volume-level5" class="volume-level">
+								<span class="weapon_numper">0</span>
+							</div>
+							<button class="button switch" id="increase5">+</button>
+						</div>
+					</div>
 					<div class="card__row">
-						<button class="button card__button">В корзину</button>
+						<button class="button card__button">Добавить</button>
 						<span class="card__price">1000 синапсов</span>
 					</div>
-				</div>
-				<div class="volume-control">
-					<button class="button switch" id="decrease">-</button>
-					<div id="volume-level" class="volume-level">0</div>
-					<button class="button switch" id="increase">+</button>
 				</div>
 			</div>
 		</template>
@@ -297,10 +338,10 @@
 			<li class="basket__item card card_compact">
 				<span class="basket__item-index">1</span>
 				<img class="card__image" src="" alt="" />
-				<div class="wheels_box">
+				<label class="wheels_box">
 					<span>Шины</span>
 					<input class="input_wheels" type="checkbox" />
-				</div>
+				</label>
 				<span class="card__title"></span>
 				<span class="card__price_basket"></span>
 				<button

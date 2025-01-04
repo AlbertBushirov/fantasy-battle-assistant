@@ -1,10 +1,4 @@
-import {
-	FormErrors,
-	ICardItem,
-	IProductItem,
-	PaymenthMethods,
-	ITehListEtem,
-} from '../../types';
+import { FormErrors, ICardItem, IProductItem } from '../../types';
 import { Model } from '../base/Model';
 
 //Изменение каталога
@@ -21,8 +15,7 @@ export interface IOrderForm {
 
 export class AppData extends Model<IProductItem> {
 	basket: ICardItem[] = [];
-	cardsTehList: ITehListEtem[] = [];
-	items: ICardItem[] | ITehListEtem[];
+	items: ICardItem[];
 	order: IOrderForm = {
 		payment: '',
 		email: '',
@@ -36,17 +29,13 @@ export class AppData extends Model<IProductItem> {
 	addBasket(item: ICardItem) {
 		if (this.basket.indexOf(item) < 0) {
 			this.basket.push(item);
-			this.updateBasket(); // Обновление корзины
+			this.updateBasket();
 		}
 	}
 
 	//Проверка, находится ли продукт в заказе.
 	productOrder(item: ICardItem): boolean {
-		return this.basket.includes(item);
-	}
-
-	tehListOrder(item: ITehListEtem): boolean {
-		return this.cardsTehList.includes(item);
+		return Boolean(this.basket.find((basketItem) => basketItem.id === item.id));
 	}
 
 	//Очистить корзину после заказа
@@ -91,7 +80,7 @@ export class AppData extends Model<IProductItem> {
 	}
 
 	//Добавление каталога карточек на главную страницу
-	setCatalog(item: (ICardItem | ITehListEtem)[]) {
+	setCatalog(item: ICardItem[]) {
 		this.items = item;
 		this.emitChanges('items:changed', { catalog: this.items });
 	}
@@ -100,56 +89,5 @@ export class AppData extends Model<IProductItem> {
 	setPreview(item: ICardItem) {
 		this.preview = item.id;
 		this.emitChanges('preview:changed', item);
-	}
-
-	//Валидация формы с контактами
-	validateContact(): boolean {
-		const errors: typeof this.formErrors = {};
-		//инпут с почтой
-		if (!this.order.email) {
-			errors.email = 'Нужно указать email';
-		} else if (this.order.email) {
-		}
-
-		//инпут с телефоном
-		if (!this.order.phone) {
-			errors.phone = 'Нужно указать телефон';
-		}
-		this.formErrors = errors;
-		this.events.emit('form:errors:change', this.formErrors);
-		return Object.keys(errors).length === 0;
-	}
-
-	setContactField(field: keyof IOrderForm, value: string) {
-		this.order[field] = value;
-		if (this.validateContact()) {
-			this.events.emit('contacts:ready', this.order);
-		}
-	}
-
-	//Валидация адреса
-	validateAdress() {
-		const errors: typeof this.formErrors = {};
-		if (!this.order.payment) {
-			errors.payment = 'Укажите способ оплаты';
-		}
-		if (!this.order.address) {
-			errors.address = 'Укажите адрес';
-		}
-		this.formErrors = errors;
-		this.events.emit('form:errors:change', errors);
-		return Object.keys(errors).length === 0;
-	}
-
-	setOrderField(item: keyof IOrderForm, value: string) {
-		this.order[item] = value;
-		if (this.validateAdress()) {
-			this.events.emit('order:ready', this.order);
-		}
-	}
-	//Метод оплаты
-	setPaymentMethod(method: string) {
-		this.order.payment = method as PaymenthMethods;
-		this.validateAdress();
 	}
 }

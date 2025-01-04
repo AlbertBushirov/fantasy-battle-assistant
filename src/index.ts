@@ -1,6 +1,12 @@
 import './scss/styles.scss';
 import { API_URL, CDN_URL } from './utils/constants';
-import { ICardItem, IOrder, ITehListEtem } from './types/index';
+import {
+	ICardItem,
+	IOrder,
+	ITehListEtem,
+	ITehListWheelsEtem,
+	IFightingMachineItem,
+} from './types/index';
 import { EventEmitter } from './components/base/events';
 import { WebLarekAPI } from './components/data/ExtensionApi';
 import {
@@ -13,8 +19,6 @@ import { cloneTemplate, ensureElement } from './utils/utils';
 import { Page } from './components/View/Page';
 import { Modal } from './components/View/Modal';
 import { Basket } from './components/View/Basket';
-import { OrderAddress, OrderContacts } from './components/View/Order';
-import { Success } from './components/View/Success';
 
 //Управление событиями и API
 const events = new EventEmitter();
@@ -29,26 +33,19 @@ const cardTehlistTemplate = ensureElement<HTMLTemplateElement>('#card-tehlist');
 const cardTehlistWheelsTemplate = ensureElement<HTMLTemplateElement>(
 	'#card-tehlist_wheels'
 );
+const cardFightMachineTemplate = ensureElement<HTMLTemplateElement>(
+	'#card-fighting_machine'
+);
 const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
 const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 const cardBasketTemplateWheels = ensureElement<HTMLTemplateElement>(
 	'#card-basket_wheels'
 );
-const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
-const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
-const successTemplate = ensureElement<HTMLTemplateElement>('#success');
 
 // Инициализация состояния приложения
 const appData = new AppData({}, events);
 
 const basket = new Basket(cloneTemplate(basketTemplate), events);
-const orderAdress = new OrderAddress(cloneTemplate(orderTemplate), events);
-const contacts = new OrderContacts(cloneTemplate(contactsTemplate), events);
-const success = new Success(cloneTemplate(successTemplate), {
-	onClick: () => {
-		modal.close();
-	},
-});
 
 // Обработчик изменения каталога
 events.on<CatalogChangeEvent>('items:changed', () => {
@@ -57,12 +54,7 @@ events.on<CatalogChangeEvent>('items:changed', () => {
 			onClick: () => events.emit('card:select', item),
 		});
 
-		return card.render({
-			title: item.title,
-			image: item.image,
-			price: item.price,
-			category: item.category,
-		});
+		return card.render(item);
 	});
 });
 
@@ -90,7 +82,7 @@ events.on('basket:changed', () => {
 	basket.items = appData.getOrderProducts().map((item, index) => {
 		let cardTemplate;
 
-		if (item.category === 'Tехлист') {
+		if (item.type === 'wheels') {
 			cardTemplate = cardBasketTemplateWheels;
 		} else {
 			cardTemplate = cardBasketTemplate;
@@ -100,15 +92,19 @@ events.on('basket:changed', () => {
 			onClick: () => {
 				appData.removeFromBasket(item.id);
 			},
+			onChange: ({ price, isWheels }) => {
+				appData.basket[index].price = price;
+				if (item.type === 'wheels') {
+					(appData.basket[index] as ITehListWheelsEtem).isWheels = isWheels;
+				}
+
+				basket.total = appData.getTotalPrice();
+			},
 		});
 
 		total += item.price;
 
-		return card.render({
-			price: item.price,
-			image: item.image,
-			description: item.description,
-		});
+		return card.render(item);
 	});
 
 	basket.total = total;
@@ -117,7 +113,7 @@ events.on('basket:changed', () => {
 // Обработчик изменения предпросмотра продукта и добавления в корзину
 
 events.on('preview:changed', (item: ICardItem) => {
-	if (item) {
+	if (item && item.type === 'list') {
 		api.getWarriorsItem(item.id).then((res) => {
 			item.id = res.id;
 			item.category = res.category;
@@ -142,11 +138,7 @@ events.on('preview:changed', (item: ICardItem) => {
 			card.buttonTitle = buttonTitle;
 			modal.render({
 				content: card.render({
-					title: item.title,
-					description: item.description,
-					image: item.image,
-					price: item.price,
-					category: item.category,
+					...item,
 					button: buttonTitle,
 				}),
 			});
@@ -154,8 +146,8 @@ events.on('preview:changed', (item: ICardItem) => {
 	}
 });
 
-events.on('preview:changed', (item: ITehListEtem) => {
-	if (item) {
+events.on('preview:changed', (item: ICardItem) => {
+	if (item && item.type === 'tech') {
 		api.getWeaponsItem(item.id).then((res) => {
 			item.id = res.id;
 			item.category = res.category;
@@ -165,62 +157,91 @@ events.on('preview:changed', (item: ITehListEtem) => {
 
 			const card = new Card('card', cloneTemplate(cardTehlistTemplate), {
 				onClick: () => {
-					if (appData.tehListOrder(item)) {
-						appData.removeFromBasket(item.id);
-						modal.close();
-					} else {
-						events.emit('product:add', item);
-					}
+					events.emit('product:add', {
+						...item,
+					});
 				},
 			});
-			const buttonTitle: string = appData.tehListOrder(item)
-				? 'Убрать'
-				: 'Добавить';
-			card.buttonTitle = buttonTitle;
+
 			modal.render({
 				content: card.render({
-					title: item.title,
-					image: item.image,
-					price: item.price,
-					category: item.category,
-					button: buttonTitle,
+					...item,
 				}),
 			});
 		});
 	}
 });
 
-events.on('preview:changed', (item: ITehListEtem) => {
-	if (item) {
+events.on('preview:changed', (item: ICardItem) => {
+	if (item && item.type === 'wheels') {
 		api.getWeaponsWheelsItem(item.id).then((res) => {
+			console.log(res);
 			item.id = res.id;
 			item.category = res.category;
 			item.title = res.title;
 			item.image = res.image;
 			item.price = res.price;
 
+			// Создание карточки товара
 			const card = new Card('card', cloneTemplate(cardTehlistWheelsTemplate), {
-				onClick: () => {
-					if (appData.tehListOrder(item)) {
-						appData.removeFromBasket(item.id);
-						modal.close();
-					} else {
-						events.emit('product:add', item);
-					}
+				onClick: (formData: { isWheels?: boolean; price: number }) => {
+					events.emit('product:add', {
+						...item,
+						isWheels: formData.isWheels,
+						price: formData.price ?? item.price,
+					});
 				},
 			});
-			const buttonTitle: string = appData.tehListOrder(item)
-				? 'Убрать'
-				: 'Добавить';
-			card.buttonTitle = buttonTitle;
+
 			card.BasedOnWheels();
+			console.log(card.price);
 			modal.render({
 				content: card.render({
-					title: item.title,
-					image: item.image,
-					price: item.price,
-					category: item.category,
-					button: buttonTitle,
+					...item,
+				}),
+			});
+		});
+	}
+});
+
+events.on('preview:changed', (item: ICardItem) => {
+	if (item && item.type === 'machine') {
+		api.getFightingMachineItem(item.id).then((res) => {
+			console.log(res);
+			console.log(
+				`Weapon Prices: ${res.weapon1}, ${res.weapon2}, ${res.weapon3}`
+			);
+			item.id = res.id;
+			item.category = res.category;
+			item.title = res.title;
+			item.image = res.image;
+			item.price = res.price;
+
+			// Создание карточки товара
+			const card = new Card('card', cloneTemplate(cardFightMachineTemplate), {
+				onClick: () => {
+					events.emit('product:add', {
+						...item,
+						price: card.price,
+					});
+				},
+			});
+
+			// Инициализация заголовков оружия
+			card.weaponTitles = {
+				title1: res.weaponTittle1,
+				title2: res.weaponTittle2,
+				title3: res.weaponTittle3,
+				title4: res.weaponTittle4,
+				title5: res.weaponTittle5,
+			};
+
+			card.initializeWeaponPrices(res);
+			card.BasedOnWeapon();
+			console.log(card.price);
+			modal.render({
+				content: card.render({
+					...item,
 				}),
 			});
 		});
@@ -246,99 +267,13 @@ events.on('basket:open', () => {
 	});
 });
 
-events.on(
-	/^contacts\..*:change/,
-	(data: { field: keyof IOrderForm; value: string }) => {
-		appData.setContactField(data.field, data.value);
-	}
-);
-
-events.on('order:ready', () => {
-	orderAdress.valid = true;
-});
-
-events.on('contacts:ready', () => {
-	contacts.valid = true;
-});
-
 events.on('basket:success', () => {
 	events.emit('order:completed');
-});
-
-events.on('payment:change', (item: HTMLButtonElement) => {
-	appData.order.payment = item.name;
-	appData.setPaymentMethod(item.name);
 });
 
 events.on('counter:changed', () => {
 	page.counter = appData.basket.length;
 	console.log(page.counter);
-});
-
-//валидация полей доставки
-events.on('form:errors:change', (errors: Partial<IOrder>) => {
-	const { payment, address, email, phone } = errors;
-	orderAdress.valid = !payment && !address;
-	orderAdress.errors = Object.values({ payment, address }).filter((i) => !!i);
-	contacts.valid = !email && !phone;
-	contacts.errors = Object.values({ email, phone }).filter((i) => !!i);
-});
-
-events.on(
-	/^order\..*:change/,
-	(data: { field: keyof IOrderForm; value: string }) => {
-		appData.setOrderField(data.field, data.value);
-	}
-);
-
-// открытие модального окна заказа
-events.on('order:open', () => {
-	modal.render({
-		content: orderAdress.render({
-			payment: 'card',
-			address: '',
-			valid: false,
-			errors: [],
-		}),
-	});
-});
-
-// Обработчик открытия модального окна контактов
-events.on('order:submit', () => {
-	modal.render({
-		content: contacts.render({
-			phone: '',
-			email: '',
-			valid: false,
-			errors: [],
-		}),
-	});
-});
-
-//Оформление заказа
-events.on('contacts:submit', () => {
-	const orderDone = {
-		...appData.order,
-		items: appData.basket.map((item) => item.id),
-		total: (basket.total = appData.getTotalPrice()),
-		id: appData.basket.map((item) => item.id),
-	};
-	api
-		.orderCards(orderDone)
-		.then((result) => {
-			appData.clearBasket(); // Очистка корзины
-			appData.clearOrder(); // Очистка данных заказа
-			orderAdress.resetButtonState();
-			success;
-			modal.render({
-				content: success.render({
-					total: result.total,
-				}),
-			});
-		})
-		.catch((err) => {
-			console.error('Ошибка при отправке заказа:', err);
-		});
 });
 
 // Блокировка прокрутки страницы
@@ -355,16 +290,25 @@ Promise.all([
 	api.getWarriorsList(),
 	api.getWeaponsList(),
 	api.getWeaponsWheelsList(),
+	api.getFightingMachineList(),
 ])
-	.then(([warriorsList, weaponsList, getFightMachineList]) => {
-		// Объединяем оба списка в один массив и передаем в setCatalog
-		const combinedList: (ICardItem | ITehListEtem)[] = [
-			...warriorsList,
-			...weaponsList,
-			...getFightMachineList,
-		];
-		appData.setCatalog(combinedList); // Передаем комбинированный список
-	})
+	.then(
+		([
+			warriorsList,
+			weaponsList,
+			getFightMachineList,
+			getFightingMachineList,
+		]) => {
+			// Объединяем оба списка в один массив и передаем в setCatalog
+			const combinedList: (ICardItem | ITehListEtem)[] = [
+				...warriorsList,
+				...weaponsList,
+				...getFightMachineList,
+				...getFightingMachineList,
+			];
+			appData.setCatalog(combinedList); // Передаем комбинированный список
+		}
+	)
 	.catch((error) => {
 		console.error('Ошибка при загрузке данных:', error);
 	});

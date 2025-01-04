@@ -98,7 +98,7 @@ export const localWeaponsWheels = [
 	{
 		id: 'arbaletgoliaf',
 		title: 'Голиаф',
-		category: 'Tехлист',
+		category: 'Техлист',
 		image:
 			'https://sun9-39.userapi.com/impg/RP4mPwztKja984cgH4p5J2xhO3UmYBDO3vcXPw/S5La1gi1jpk.jpg?size=709x508&quality=95&sign=40eca3f1c8a667356b1bcd654bc47266&type=album', // Прямой URL для удаленного изображения
 		price: 80,
@@ -108,7 +108,7 @@ export const localWeaponsWheels = [
 	{
 		id: 'arbaletskorpion',
 		title: 'Скорпион',
-		category: 'Tехлист',
+		category: 'Техлист',
 		image:
 			'https://sun9-50.userapi.com/impg/Adidf-nIepUNkaHzjnitiXF67oS_SkdLYioySg/BkD5DuAq8KU.jpg?size=709x508&quality=95&sign=cb0f3f5e222391f972f473c4410113b8&type=album', // Прямой URL для удаленного изображения
 		price: 130,
@@ -118,7 +118,7 @@ export const localWeaponsWheels = [
 	{
 		id: 'arbaletharibda',
 		title: 'Харибда',
-		category: 'Tехлист',
+		category: 'Техлист',
 		image:
 			'https://sun9-58.userapi.com/impg/k4RSi3R0tliCgElaDXF50Io53uOT1TsoIvn7bw/MyKcs8UyhY4.jpg?size=709x508&quality=95&sign=a427463cf8574427e3fba76d9bf50c26&type=album', // Прямой URL для удаленного изображения
 		price: 70,
@@ -128,7 +128,7 @@ export const localWeaponsWheels = [
 	{
 		id: 'catapultbogomol',
 		title: 'Богомол',
-		category: 'Tехлист',
+		category: 'Техлист',
 		image:
 			'https://sun9-67.userapi.com/impg/XHKE1GyEx5_7_auzFfqK2HtvKyZvOIns1yt6Yg/IcsnaZZAnEY.jpg?size=709x508&quality=95&sign=9cfc8ae2477da25394639824fad5ebb2&type=album', // Прямой URL для удаленного изображения
 		price: 70,

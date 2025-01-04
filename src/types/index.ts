@@ -9,51 +9,57 @@ export interface IProductItem {
 }
 
 // Товар
-export interface ICardItem {
+export type ICardItem =
+	| IListItem
+	| ITehListEtem
+	| ITehListWheelsEtem
+	| IFightingMachineItem;
+
+export interface IBaseCardItem {
+	type: string;
 	id: string;
 	title: string;
+	inBasket: boolean;
+	price: number | null;
 	category: string;
+	button: string;
+}
+
+export interface IListItem extends IBaseCardItem {
+	type: 'list';
 	description: string;
 	image: string;
-	price: number | null;
-	inBasket: boolean;
+}
+
+export interface ITehListEtem extends IBaseCardItem {
+	type: 'tech';
+	image: string;
+}
+
+export interface ITehListWheelsEtem extends IBaseCardItem {
+	type: 'wheels';
+	wheelsPrice: number;
+	isWheels?: boolean;
+	image: string;
 	button: string;
 }
 
-export interface ITehListEtem {
-	id: string;
-	title: string;
-	category: string;
+export interface IFightingMachineItem extends IBaseCardItem {
+	type: 'machine';
 	image: string;
-	price: number | null;
-	inBasket: boolean;
-	button: string;
-}
-
-export interface ITehListWheelsEtem {
-	id: string;
-	title: string;
-	category: string;
-	image: string;
-	price: number | null;
-	inBasket: boolean;
-	button: string;
-	Input: boolean;
-}
-
-export interface IFightingMachineEtem {
-	id: string;
-	title: string;
-	category: string;
-	image: string;
-	price: number | null;
-	inBasket: boolean;
-	button: string;
-	weapon1: string;
-	weapon2: string;
-	weapon3: string;
-	weapon4: string;
-	weapon5: string;
+	weaponTittle1: string;
+	weapon1: number;
+	weaponTittle2: string;
+	weapon2: number;
+	weaponTittle3: string;
+	weapon3: number;
+	weaponTittle4: string;
+	weaponTittle5: string;
+	weapon1_number: number;
+	weapon2_number: number;
+	weapon3_number: number;
+	weapon4_number: number;
+	weapon5_number: number;
 }
 
 // Интерфейс формы доставки заказа
