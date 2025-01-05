@@ -1,19 +1,9 @@
 import './scss/styles.scss';
 import { API_URL, CDN_URL } from './utils/constants';
-import {
-	ICardItem,
-	IOrder,
-	ITehListEtem,
-	ITehListWheelsEtem,
-	IFightingMachineItem,
-} from './types/index';
+import { ICardItem, ITehListWheelsEtem } from './types/index';
 import { EventEmitter } from './components/base/events';
 import { WebLarekAPI } from './components/data/ExtensionApi';
-import {
-	AppData,
-	CatalogChangeEvent,
-	IOrderForm,
-} from './components/data/AppData';
+import { AppData, CatalogChangeEvent } from './components/data/AppData';
 import { Card, BasketElement } from './components/View/Card';
 import { cloneTemplate, ensureElement } from './utils/utils';
 import { Page } from './components/View/Page';
@@ -74,14 +64,30 @@ events.on('product:delete', (item: ICardItem) => {
 	appData.removeFromBasket(item.id);
 });
 
-// Обработчик изменения в корзине и обновления общей стоимости
+//Обработчик изменения в корзине и обновления общей стоимости
+const order: Record<string, number> = {
+	list: 1,
+	tech: 2,
+	wheels: 3,
+	machine: 4,
+};
+
+// Обработчик события
 events.on('basket:changed', () => {
 	page.counter = appData.getOrderProducts().length;
 	let total = 0;
 
-	basket.items = appData.getOrderProducts().map((item, index) => {
+	// Получаем продукты из корзины и сортируем их по определённому порядку
+	const sortedItems = appData
+		.getOrderProducts()
+		.sort((a: ICardItem, b: ICardItem) => {
+			return (order[a.type] || 5) - (order[b.type] || 5); // Порядок сортировки по типу
+		});
+
+	basket.items = sortedItems.map((item, index) => {
 		let cardTemplate;
 
+		// Выбор шаблона в зависимости от типа товара
 		if (item.type === 'wheels') {
 			cardTemplate = cardBasketTemplateWheels;
 		} else {
@@ -248,18 +254,6 @@ events.on('preview:changed', (item: ICardItem) => {
 	}
 });
 
-// Обработчик изменения цены в каталоге
-events.on('catalog:updated', (data: { id: string; newPrice: number }) => {
-	// Находим товар в каталоге и обновляем его цену
-	const item = appData.items.find((item) => item.id === data.id);
-	if (item) {
-		item.price = data.newPrice;
-	}
-
-	// После обновления цены каталога обновляем корзину
-	appData.updateBasket();
-});
-
 //Открытие корзицы товаров
 events.on('basket:open', () => {
 	modal.render({
@@ -300,7 +294,7 @@ Promise.all([
 			getFightingMachineList,
 		]) => {
 			// Объединяем оба списка в один массив и передаем в setCatalog
-			const combinedList: (ICardItem | ITehListEtem)[] = [
+			const combinedList: ICardItem[] = [
 				...warriorsList,
 				...weaponsList,
 				...getFightMachineList,

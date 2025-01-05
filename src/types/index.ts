@@ -32,7 +32,7 @@ export interface IListItem extends IBaseCardItem {
 }
 
 export interface ITehListEtem extends IBaseCardItem {
-	type: 'tech';
+	type: 'tech' | 'OBE';
 	image: string;
 }
 
