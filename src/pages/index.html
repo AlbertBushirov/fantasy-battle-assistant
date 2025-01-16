@@ -351,6 +351,61 @@
 			</li>
 		</template>
 
+		<template id="card-basket_fighting_machine">
+			<li class="basket__item card card_compact">
+				<span class="basket__item-index">1</span>
+				<img class="card__image" src="" alt="" />
+				<div class="weapon">
+					<span class="weapon_tittle1">1000 синапсов</span>
+					<div class="volume-control">
+						<button class="button switch" id="decrease1">-</button>
+						<div id="volume-level1" class="volume-level">
+							<span class="weapon_numper">0</span>
+						</div>
+						<button class="button switch" id="increase1">+</button>
+					</div>
+					<span class="weapon_tittle2">1000 синапсов</span>
+					<div class="volume-control">
+						<button class="button switch" id="decrease2">-</button>
+						<div id="volume-level2" class="volume-level">
+							<span class="weapon_numper">0</span>
+						</div>
+						<button class="button switch" id="increase2">+</button>
+					</div>
+					<span class="weapon_tittle3">1000 синапсов</span>
+					<div class="volume-control">
+						<button class="button switch" id="decrease3">-</button>
+						<div id="volume-level3" class="volume-level">
+							<span class="weapon_numper">0</span>
+						</div>
+						<button class="button switch" id="increase3">+</button>
+					</div>
+					<span class="weapon_tittle4">1000 синапсов</span>
+					<div class="volume-control">
+						<button class="button switch" id="decrease4">-</button>
+						<div id="volume-level4" class="volume-level">
+							<span class="weapon_numper">0</span>
+						</div>
+						<button class="button switch" id="increase4">+</button>
+					</div>
+					<span class="weapon_tittle5">1000 синапсов</span>
+					<div class="volume-control">
+						<button class="button switch" id="decrease5">-</button>
+						<div id="volume-level5" class="volume-level">
+							<span class="weapon_numper">0</span>
+						</div>
+						<button class="button switch" id="increase5">+</button>
+					</div>
+				</div>
+				<span class="card__title"></span>
+				<span class="card__price_basket"></span>
+				<button
+					class="basket__item-delete card__button"
+					aria-label="удалить"
+				></button>
+			</li>
+		</template>
+
 		<template id="basket">
 			<div class="basket">
 				<h2 class="modal__title">Просмотр армии</h2>
@@ -363,68 +418,6 @@
 					<span class="basket__price">0</span>
 				</div>
 			</div>
-		</template>
-
-		<template id="order">
-			<form class="form" name="order">
-				<div class="order">
-					<div class="order__field">
-						<h2 class="modal__title">Способ оплаты</h2>
-						<div class="order__buttons">
-							<button name="card" type="button" class="button button_alt">
-								Онлайн
-							</button>
-							<button name="cash" type="button" class="button button_alt">
-								При получении
-							</button>
-						</div>
-					</div>
-					<label class="order__field">
-						<span class="form__label modal__title">Адрес доставки</span>
-						<input
-							name="address"
-							class="form__input"
-							type="text"
-							placeholder="Введите адрес"
-						/>
-					</label>
-				</div>
-				<div class="modal__actions">
-					<button type="submit" disabled class="button order__button">
-						Далее
-					</button>
-					<span class="form__errors"></span>
-				</div>
-			</form>
-		</template>
-
-		<template id="contacts">
-			<form class="form" name="contacts">
-				<div class="order">
-					<label class="order__field">
-						<span class="form__label modal__title">Email</span>
-						<input
-							name="email"
-							class="form__input"
-							type="text"
-							placeholder="Введите Email"
-						/>
-					</label>
-					<label class="order__field">
-						<span class="form__label modal__title">Телефон</span>
-						<input
-							name="phone"
-							class="form__input"
-							type="text"
-							placeholder="+7 ("
-						/>
-					</label>
-				</div>
-				<div class="modal__actions">
-					<button type="submit" disabled class="button">Оплатить</button>
-					<span class="form__errors"></span>
-				</div>
-			</form>
 		</template>
 	</body>
 </html>

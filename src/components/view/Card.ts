@@ -8,6 +8,11 @@ interface ICardActions {
 	onChange?: (data: { isWheels?: boolean; price?: number }) => void;
 }
 
+export interface ICardMachineActions {
+	onClick: (event: { weaponPrices?: number; price?: number }) => void;
+	onChange?: (data: { weaponPrices?: number; price?: number }) => void;
+}
+
 interface Category {
 	[key: string]: string;
 }
@@ -52,7 +57,7 @@ export class Card extends Component<ICardItem> {
 	constructor(
 		protected blockName: string,
 		container: HTMLElement,
-		action?: ICardActions
+		action?: ICardActions | ICardMachineActions
 	) {
 		super(container, new EventEmitter()); // Инициализация EventEmitter
 		this.weaponPrices = [];
@@ -84,7 +89,6 @@ export class Card extends Component<ICardItem> {
 			'.input_wheels'
 		) as HTMLInputElement;
 
-		// Добавляем обработчик события клика
 		if (action?.onClick) {
 			const handleAction = () => {
 				action.onClick({
