@@ -213,10 +213,6 @@ events.on('preview:changed', (item: ICardItem) => {
 events.on('preview:changed', (item: ICardItem) => {
 	if (item && item.type === 'machine') {
 		api.getFightingMachineItem(item.id).then((res) => {
-			console.log(res);
-			console.log(
-				`Weapon Prices: ${res.weapon1}, ${res.weapon2}, ${res.weapon3}`
-			);
 			item.id = res.id;
 			item.category = res.category;
 			item.title = res.title;
@@ -233,18 +229,7 @@ events.on('preview:changed', (item: ICardItem) => {
 				},
 			});
 
-			// Инициализация заголовков оружия
-			card.weaponTitles = {
-				title1: res.weaponTittle1,
-				title2: res.weaponTittle2,
-				title3: res.weaponTittle3,
-				title4: res.weaponTittle4,
-				title5: res.weaponTittle5,
-			};
-
-			card.initializeWeaponPrices(res);
 			card.BasedOnWeapon();
-			console.log(card.price);
 			modal.render({
 				content: card.render({
 					...item,

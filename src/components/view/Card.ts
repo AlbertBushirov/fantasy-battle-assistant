@@ -1,7 +1,8 @@
-import { ensureElement } from '../../utils/utils';
+import {cloneTemplate, ensureElement} from '../../utils/utils';
 import { Component } from '../base/Component';
 import { EventEmitter } from '../base/events';
-import { ICardItem } from '../../types';
+import {ICardItem, IItemWeapons} from '../../types';
+import {Weapon} from "./Weapon";
 
 interface ICardActions {
 	onClick: (event: { isWheels?: boolean; price?: number }) => void;
@@ -36,6 +37,7 @@ export class Card extends Component<ICardItem> {
 	protected _category?: HTMLElement;
 	protected _description?: HTMLImageElement;
 	protected _price: HTMLElement;
+	protected priceValue: number;
 	protected _button?: HTMLButtonElement;
 	protected _buttonModal?: HTMLButtonElement;
 	protected volumeLevel: HTMLElement;
@@ -44,13 +46,8 @@ export class Card extends Component<ICardItem> {
 	public _inputWheels: HTMLInputElement;
 	protected basketElement?: BasketElement;
 	protected wheelsPrice?: number;
-	protected weaponTittle1: HTMLElement;
-	protected weaponTittle2: HTMLElement;
-	protected weaponTittle3: HTMLElement;
-	protected weaponTittle4: HTMLElement;
-	protected weaponTittle5: HTMLElement;
-	private weaponPrices: number[];
-	public weaponCounts: number[];
+	protected _weapons?: HTMLInputElement
+	protected weapons?: IItemWeapons
 	public volumeLevels: number[];
 	protected weaponNumperElements: HTMLElement[] = [];
 
@@ -60,29 +57,13 @@ export class Card extends Component<ICardItem> {
 		action?: ICardActions | ICardMachineActions
 	) {
 		super(container, new EventEmitter()); // Инициализация EventEmitter
-		this.weaponPrices = [];
-		this.weaponCounts = [];
 		this._category = container.querySelector('.card__category');
 		this._title = ensureElement<HTMLElement>('.card__title', container);
 		this._description = container.querySelector('.card__description');
 		this._image = container.querySelector('.card__image');
 		this._price = ensureElement<HTMLElement>('.card__price', container);
 		this._button = container.querySelector('.card__button');
-		this.weaponTittle1 = container.querySelector(
-			'.weapon_tittle1'
-		) as HTMLElement;
-		this.weaponTittle2 = container.querySelector(
-			'.weapon_tittle2'
-		) as HTMLElement;
-		this.weaponTittle3 = container.querySelector(
-			'.weapon_tittle3'
-		) as HTMLElement;
-		this.weaponTittle4 = container.querySelector(
-			'.weapon_tittle4'
-		) as HTMLElement;
-		this.weaponTittle5 = container.querySelector(
-			'.weapon_tittle5'
-		) as HTMLElement;
+		this._weapons = container.querySelector('.weapons-list');
 
 		// Ссылка на чекбокс
 		this._inputWheels = container.querySelector(
@@ -103,49 +84,17 @@ export class Card extends Component<ICardItem> {
 				container.addEventListener('click', handleAction);
 			}
 		}
-		for (let i = 1; i <= 5; i++) {
-			this.weaponCounts[i - 1] = 0;
-			this.weaponNumperElements[i - 1] = container.querySelector(
-				`#volume-level${i} .weapon_numper`
-			) as HTMLElement;
-
-			const increaseButton = container.querySelector(
-				`#increase${i}`
-			) as HTMLButtonElement;
-			const decreaseButton = container.querySelector(
-				`#decrease${i}`
-			) as HTMLButtonElement;
-
-			if (increaseButton && decreaseButton) {
-				increaseButton.addEventListener('click', () =>
-					this.increaseWeaponCount(i - 1)
-				);
-				decreaseButton.addEventListener('click', () =>
-					this.decreaseWeaponCount(i - 1)
-				);
-			}
-		}
-	}
-	initializeWeaponPrices(res: any) {
-		this.weaponPrices = [
-			res.weapon1 || 0,
-			res.weapon2 || 0,
-			res.weapon2 || 0,
-			res.weapon2 || 0,
-			res.weapon3 || 0,
-		];
-		console.log('Initialized weapon prices:', this.weaponPrices);
 	}
 
 	private totalWeaponCount(): number {
-		return this.weaponCounts.reduce((total, count) => total + count, 0);
+		return this.weapons.reduce((total, weapon) => total + weapon.quantity, 0);
 	}
 
 	private increaseWeaponCount(index: number) {
 		if (this.totalWeaponCount() < 2) {
 			// Проверка на общую сумму
-			this.weaponCounts[index]++;
-			this.updateWeaponNumper(index);
+			this.weapons[index].quantity++;
+			this.renderWeapons(this.weapons)
 			this.BasedOnWeapon();
 		} else {
 			console.warn('Общая сумма weapon_numper не может превышать 2');
@@ -153,16 +102,11 @@ export class Card extends Component<ICardItem> {
 	}
 
 	private decreaseWeaponCount(index: number) {
-		if (this.weaponCounts[index] > 0) {
-			this.weaponCounts[index]--;
-			this.updateWeaponNumper(index);
+		if (this.weapons[index].quantity > 0) {
+			this.weapons[index].quantity--;
+			this.renderWeapons(this.weapons)
 			this.BasedOnWeapon(); // Обновляем цену на основе оружия
 		}
-	}
-
-	private updateWeaponNumper(index: number) {
-		this.weaponNumperElements[index].textContent =
-			this.weaponCounts[index].toString();
 	}
 
 	private notifyBasketChanged() {
@@ -206,36 +150,16 @@ export class Card extends Component<ICardItem> {
 	}
 
 	public BasedOnWeapon() {
-		this.price = 0; // Обнуляем цену
+		const weaponsPrice = this.weapons?.reduce((total, weapon) => total + weapon.price * weapon.quantity, 0)
 
-		for (let i = 0; i < this.weaponCounts.length; i++) {
-			const weaponPrice = this.weaponPrices[i] || 0; // Получаем цену оружия, если она не определена, устанавливаем 0
-			const weaponCount = this.weaponCounts[i] || 0; // Получаем количество оружия, если оно не определено, устанавливаем 0
-
-			console.log(
-				`Weapon ${i + 1}: Price = ${weaponPrice}, Count = ${weaponCount}`
-			);
-
-			// Убедитесь, что weaponPrice и weaponCount являются числами
-			if (typeof weaponPrice === 'number' && typeof weaponCount === 'number') {
-				this.price += weaponPrice * weaponCount; // Обновляем общую цену
-			} else {
-				console.error(
-					`Invalid price or count for weapon ${
-						i + 1
-					}: Price = ${weaponPrice}, Count = ${weaponCount}`
-				);
-			}
-		}
-
-		console.log(`Total Price: ${this.price}`);
+		this.price = this.priceValue + weaponsPrice
 		this.notifyBasketChanged(); // Уведомляем о изменении корзины
 	}
 
 	//Отключение кнопки
 	disableButton(value: number | null) {
-		if (!value && this._button) {
-			this._button.disabled = true;
+		if (this._button) {
+			this._button.disabled = !value;
 		}
 	}
 
@@ -296,22 +220,32 @@ export class Card extends Component<ICardItem> {
 		this._inputWheels.checked = value;
 	}
 
-	set weaponTitles(data: {
-		title1: string;
-		title2: string;
-		title3: string;
-		title4: string;
-		title5: string;
-	}) {
-		this.weaponTittle1.textContent = data.title1;
-		this.weaponTittle2.textContent = data.title2;
-		this.weaponTittle3.textContent = data.title3;
-		this.weaponTittle4.textContent = data.title4;
-		this.weaponTittle5.textContent = data.title5;
+	renderWeapons(weapons: IItemWeapons) {
+
+		if (weapons && this._weapons) {
+			const weaponsElements = weapons.map((weapon, index) => {
+				const container = cloneTemplate('#weapon')
+				const weaponEl = new Weapon(container, {
+					increase: () => {
+						this.increaseWeaponCount(index)
+					},
+					decrease: () => {
+						this.decreaseWeaponCount(index)
+					}
+				})
+				return weaponEl.render({ ...weapon, isMax: this.totalWeaponCount() >= 2 })
+			})
+			this._weapons.replaceChildren(...weaponsElements)
+		}
 	}
 
 	render(data: ICardItem): HTMLElement {
-		return super.render(data);
+		const element = super.render(data);
+		this.priceValue = data.price
+		if ('weapons' in data) {
+			this.renderWeapons(data.weapons)
+		}
+		return element
 	}
 }
 

@@ -1,4 +1,6 @@
 // Приложение
+import {Weapon} from "./weapons";
+
 export interface IProductItem {
 	basket: IBasket[];
 	cardsList: ICardItem[];
@@ -7,6 +9,10 @@ export interface IProductItem {
 	order: IOrder | null;
 	image: string;
 }
+
+export type IItemWeapons = Array<Weapon & {
+	quantity: number
+}>
 
 // Товар
 export type ICardItem =
@@ -47,19 +53,7 @@ export interface ITehListWheelsEtem extends IBaseCardItem {
 export interface IFightingMachineItem extends IBaseCardItem {
 	type: 'machine';
 	image: string;
-	weaponTittle1: string;
-	weapon1: number;
-	weaponTittle2: string;
-	weapon2: number;
-	weaponTittle3: string;
-	weapon3: number;
-	weaponTittle4: string;
-	weaponTittle5: string;
-	weapon1_number: number;
-	weapon2_number: number;
-	weapon3_number: number;
-	weapon4_number: number;
-	weapon5_number: number;
+	weapons: IItemWeapons
 }
 
 // Интерфейс формы доставки заказа
