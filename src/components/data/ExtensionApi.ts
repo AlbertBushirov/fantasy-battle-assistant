@@ -112,7 +112,7 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 		return Promise.resolve({
 			type: 'machine',
 			...item,
-			weapons: item.weapons.map(weapon => ({...weapon, quantity: 0})),
+			weapons: item.weapons.map((weapon) => ({ ...weapon, quantity: 0 })),
 			image: imageUrl,
 		});
 	}
