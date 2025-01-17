@@ -189,7 +189,7 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 					...item,
 					weapons: item.weapons.map((weapon) => ({
 						...weapon,
-						quantity: 0
+						quantity: 0,
 					})),
 					image: imageUrl,
 				};

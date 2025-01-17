@@ -181,7 +181,6 @@ events.on('preview:changed', (item: ICardItem) => {
 events.on('preview:changed', (item: ICardItem) => {
 	if (item && item.type === 'wheels') {
 		api.getWeaponsWheelsItem(item.id).then((res) => {
-			console.log(res);
 			item.id = res.id;
 			item.category = res.category;
 			item.title = res.title;
@@ -200,7 +199,6 @@ events.on('preview:changed', (item: ICardItem) => {
 			});
 
 			card.BasedOnWheels();
-			console.log(card.price);
 			modal.render({
 				content: card.render({
 					...item,
