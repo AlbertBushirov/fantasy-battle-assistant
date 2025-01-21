@@ -14,7 +14,7 @@ export const localArmy = [
 	},
 	{
 		id: '2GVSvepr',
-		title: 'Дозорный отряд Вепрь',
+		title: 'Вепрь',
 		category: 'Гильдия вольных стрелков',
 		description:
 			'https://sun9-73.userapi.com/impg/051eKRPkw4A0oROb6WqWoiw7ta4YbR6UzDRlkQ/gNVGbp8PIWA.jpg?size=1090x726&quality=95&sign=797c52c36b8533b3c2181a1514383bc8&type=album',
@@ -26,7 +26,7 @@ export const localArmy = [
 	},
 	{
 		id: '3GVSversal',
-		title: 'Рота Версаль',
+		title: 'Версаль',
 		category: 'Гильдия вольных стрелков',
 		description:
 			'https://sun9-13.userapi.com/impg/NkSy8Oa4d3efTJRk1n383pSep_AeMQxvw5s_Jg/MobxqsDg88w.jpg?size=1090x726&quality=95&sign=ff1982df428238ae8d125a82d604aac0&type=album',
@@ -38,7 +38,7 @@ export const localArmy = [
 	},
 	{
 		id: '3GVSpsivoini',
-		title: 'Банда Псы Войны',
+		title: 'Псы Войны',
 		category: 'Гильдия вольных стрелков',
 		description:
 			'https://sun9-17.userapi.com/impg/TSe5exiuT3MFyzz9cnzPFEpmjrATHptVIqNOyw/-5UqI7Zihks.jpg?size=1090x726&quality=95&sign=55b60fc30b00b229b103ef920acd35de&type=album',
@@ -50,7 +50,7 @@ export const localArmy = [
 	},
 	{
 		id: '4GVSpushkari',
-		title: 'Дружины Пушкари',
+		title: 'Пушкари',
 		category: 'Гильдия вольных стрелков',
 		description:
 			'https://sun9-15.userapi.com/impg/R-4Z6F2VimKibAcCRhEuc-G9ghordHuaXjn83g/4huwked75NI.jpg?size=1090x726&quality=95&sign=df51458c21f1693b6f352b6e3ed7a2d8&type=album',
@@ -62,7 +62,7 @@ export const localArmy = [
 	},
 	{
 		id: '5GVSrodezia',
-		title: 'Отряд Родезия',
+		title: 'Родезия',
 		category: 'Гильдия вольных стрелков',
 		description:
 			'https://sun9-62.userapi.com/impg/nx6pgsKnPupSh7dipbjzJJcFhh2BKF0O2vyWcQ/Rbz8rdjBVhY.jpg?size=1090x726&quality=95&sign=054ff9d8c3ae4d13bde29a911f4a9820&type=album',
@@ -74,7 +74,7 @@ export const localArmy = [
 	},
 	{
 		id: '6GVSsaturn',
-		title: 'Легион Сатурн',
+		title: 'Сатурн',
 		category: 'Гильдия вольных стрелков',
 		description:
 			'https://sun9-14.userapi.com/impg/6TIbhWamA0YERl-hJFadnUMdhAnuLh2ERCixFw/s0iFQNF_VEQ.jpg?size=1090x726&quality=95&sign=351b926be0e2b8f22f5a40235cea1f2a&type=album',
