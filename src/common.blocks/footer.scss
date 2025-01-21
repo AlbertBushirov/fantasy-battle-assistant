@@ -1,0 +1,17 @@
+@use 'variables' as *;
+@use 'mixins';
+
+.footer {
+	@include mixins.container;
+	@include mixins.flex(column);
+	gap: $defaultPadding;
+	background-color: $background;
+	min-height: min-content;
+	min-width: min-content;
+	border-radius: 3rem;
+	box-sizing: border-box;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+}

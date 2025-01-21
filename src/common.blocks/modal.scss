@@ -25,7 +25,14 @@
 		min-width: min-content;
 		border-radius: 3rem;
 		box-sizing: border-box;
-		position: relative;
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		&_locked {
+			position: absolute;
+			top: 0;
+		}
 	}
 
 	&__content {

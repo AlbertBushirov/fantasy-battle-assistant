@@ -1,21 +1,12 @@
-import { ensureElement } from '../../utils/utils';
+import { cloneTemplate, ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { EventEmitter } from '../base/events';
-import { AppData } from '../data/AppData';
+import { ICardItem, IItemWeapons } from '../../types';
+import { Weapon } from './Weapon';
 
 interface ICardActions {
-	onClick: (event: MouseEvent) => void;
-}
-
-interface ICard {
-	id: string;
-	title: string;
-	category: string;
-	description: string;
-	image: string;
-	price: number | null;
-	inBasket: boolean;
-	button: string;
+	onClick: (event: { isWheels?: boolean; price?: number }) => void;
+	onChange?: (data: { isWheels?: boolean; price?: number }) => void;
 }
 
 interface Category {
@@ -30,18 +21,18 @@ const category: Category = {
 	'Гвардия Чародея': 'card__category_charodey',
 	'Боевая машина': 'card__category_other',
 	Техлист: 'card__category_other',
-	Tехлист: 'card__category_other',
 	кнопка: 'card__category_button',
 	другое: 'card__category_other',
 	дополнительное: 'card__category_additional',
 };
 
-export class Card extends Component<ICard> {
+export class Card extends Component<ICardItem> {
 	protected _title: HTMLElement;
 	protected _image?: HTMLImageElement;
 	protected _category?: HTMLElement;
 	protected _description?: HTMLImageElement;
 	protected _price: HTMLElement;
+	protected priceValue: number;
 	protected _button?: HTMLButtonElement;
 	protected _buttonModal?: HTMLButtonElement;
 	protected volumeLevel: HTMLElement;
@@ -49,6 +40,11 @@ export class Card extends Component<ICard> {
 	protected decreaseButton: HTMLButtonElement;
 	public _inputWheels: HTMLInputElement;
 	protected basketElement?: BasketElement;
+	protected wheelsPrice?: number;
+	protected _weapons?: HTMLInputElement;
+	protected weapons?: IItemWeapons;
+	public volumeLevels: number[];
+	protected weaponNumperElements: HTMLElement[] = [];
 
 	constructor(
 		protected blockName: string,
@@ -62,48 +58,50 @@ export class Card extends Component<ICard> {
 		this._image = container.querySelector('.card__image');
 		this._price = ensureElement<HTMLElement>('.card__price', container);
 		this._button = container.querySelector('.card__button');
-		this.volumeLevel = document.getElementById('volume-level') as HTMLElement;
-		this.increaseButton = document.getElementById(
-			'increase'
-		) as HTMLButtonElement;
-		this.decreaseButton = document.getElementById(
-			'decrease'
-		) as HTMLButtonElement;
+		this._weapons = container.querySelector('.weapons-list');
+
 		// Ссылка на чекбокс
 		this._inputWheels = container.querySelector(
 			'.input_wheels'
 		) as HTMLInputElement;
 
-		// Добавляем обработчик события клика
 		if (action?.onClick) {
+			const handleAction = () => {
+				action.onClick({
+					isWheels: this._inputWheels?.checked,
+					price: this.price,
+				});
+			};
+
 			if (this._button) {
-				this._button.addEventListener('click', action.onClick);
+				this._button.addEventListener('click', handleAction);
 			} else {
-				container.addEventListener('click', action.onClick);
+				container.addEventListener('click', handleAction);
 			}
 		}
 	}
 
-	updateVolume() {
-		let volume: number = 0;
-		this.volumeLevel.textContent = volume.toString();
-		this.volumeLevel.style.transform = `scale(${1 + volume / 10})`; // Увеличиваем размер в зависимости от громкости
+	private totalWeaponCount(): number {
+		return this.weapons.reduce((total, weapon) => total + weapon.quantity, 0);
 	}
 
-	switch() {
-		let volume: number = 0;
-		this.increaseButton.addEventListener('click', () => {
-			if (volume < 2) {
-				volume += 0.1;
-				this.updateVolume();
-			}
-		});
-		this.decreaseButton.addEventListener('click', () => {
-			if (volume > 0) {
-				volume -= 0.1;
-				this.updateVolume();
-			}
-		});
+	private increaseWeaponCount(index: number) {
+		if (this.totalWeaponCount() < 2) {
+			// Проверка на общую сумму
+			this.weapons[index].quantity++;
+			this.renderWeapons(this.weapons);
+			this.BasedOnWeapon();
+		} else {
+			console.warn('Общая сумма weapon_numper не может превышать 2');
+		}
+	}
+
+	private decreaseWeaponCount(index: number) {
+		if (this.weapons[index].quantity > 0) {
+			this.weapons[index].quantity--;
+			this.renderWeapons(this.weapons);
+			this.BasedOnWeapon(); // Обновляем цену на основе оружия
+		}
 	}
 
 	private notifyBasketChanged() {
@@ -117,7 +115,7 @@ export class Card extends Component<ICard> {
 	getPriceAdjustmentBasedOnWheels(): number {
 		if (this._inputWheels) {
 			// Если инпут существует, проверяем его состояние
-			return this._inputWheels.checked ? 10 : -10;
+			return this._inputWheels.checked ? this.wheelsPrice : -this.wheelsPrice;
 		} else {
 			console.warn('Input wheels element not found!');
 			return 0; // Возвращаем 0, если элемент не найден
@@ -125,21 +123,16 @@ export class Card extends Component<ICard> {
 	}
 
 	private updatePriceBasedOnWheels() {
-		// Получаем текущее изменение цены, основанное на чекбоксе (например, +10 или -10)
 		const priceChange = this.getPriceAdjustmentBasedOnWheels();
 
-		// Обновляем цену товара
 		const updatedPrice = (this.price || 0) + priceChange;
 
-		// Обновляем цену модели карточки товара
-		this.price = updatedPrice; // Используем сеттер, чтобы обновить цену и отобразить её
+		this.price = updatedPrice;
 
-		// Если товар уже добавлен в корзину, обновляем его цену в корзине
 		if (this.basketElement) {
-			this.basketElement.price = updatedPrice; // Обновляем цену товара в корзине
+			this.basketElement.price = updatedPrice;
 		}
 
-		// Уведомляем систему, что корзина была изменена (пересчитываем общую сумму корзины)
 		this.notifyBasketChanged();
 	}
 
@@ -151,10 +144,20 @@ export class Card extends Component<ICard> {
 		);
 	}
 
+	public BasedOnWeapon() {
+		const weaponsPrice = this.weapons?.reduce(
+			(total, weapon) => total + weapon.price * weapon.quantity,
+			0
+		);
+
+		this.price = this.priceValue + weaponsPrice;
+		this.notifyBasketChanged(); // Уведомляем о изменении корзины
+	}
+
 	//Отключение кнопки
 	disableButton(value: number | null) {
-		if (!value && this._button) {
-			this._button.disabled = true;
+		if (this._button) {
+			this._button.disabled = !value;
 		}
 	}
 
@@ -200,7 +203,7 @@ export class Card extends Component<ICard> {
 		return Number(this._price.textContent?.replace(' очков', '') || 0);
 	}
 
-	//Описание карточки
+	//Отображение артефакта
 	set description(value: string) {
 		this.setImage(this._description, value, this.title);
 	}
@@ -209,6 +212,40 @@ export class Card extends Component<ICard> {
 	set category(value: string) {
 		this.setText(this._category, value);
 		this.toggleClass(this._category, category[value], true);
+	}
+
+	set isWheels(value: boolean) {
+		this._inputWheels.checked = value;
+	}
+
+	renderWeapons(weapons: IItemWeapons) {
+		if (weapons && this._weapons) {
+			const weaponsElements = weapons.map((weapon, index) => {
+				const container = cloneTemplate('#weapon');
+				const weaponEl = new Weapon(container, {
+					increase: () => {
+						this.increaseWeaponCount(index);
+					},
+					decrease: () => {
+						this.decreaseWeaponCount(index);
+					},
+				});
+				return weaponEl.render({
+					...weapon,
+					isMax: this.totalWeaponCount() >= 2,
+				});
+			});
+			this._weapons.replaceChildren(...weaponsElements);
+		}
+	}
+
+	render(data: ICardItem): HTMLElement {
+		const element = super.render(data);
+		this.priceValue = data.price;
+		if ('weapons' in data) {
+			this.renderWeapons(data.weapons);
+		}
+		return element;
 	}
 }
 
@@ -225,13 +262,14 @@ export class BasketElement extends Component<IBasketItem> {
 	protected _button: HTMLButtonElement;
 	protected _image?: HTMLImageElement;
 	protected _description?: HTMLImageElement;
-	protected _inputWheels: HTMLInputElement;
+	protected _inputWheels?: HTMLInputElement;
+	protected wheelsPrice?: number;
 
 	constructor(
 		container: HTMLElement,
 		index: number,
 		events: EventEmitter,
-		action?: ICardActions
+		protected action?: ICardActions
 	) {
 		super(container);
 
@@ -247,32 +285,30 @@ export class BasketElement extends Component<IBasketItem> {
 		) as HTMLInputElement;
 
 		this.events = events;
-		//Обработчик события клика для кнопки
-		if (action?.onClick) {
-			if (this._button) {
-				this._button.addEventListener('click', action.onClick);
-			}
-		}
 
-		// Инициализируем цену на основе текущего состояния input_wheels
-		this.updatePrice();
-
-		// Обработчик события изменения состояния input_wheels
 		if (this._inputWheels) {
 			this._inputWheels.addEventListener('change', () => this.updatePrice());
 		}
 
-		// Обработчик события клика для кнопки
 		if (action?.onClick) {
-			if (this._button) {
-				this._button.addEventListener('click', action.onClick);
-			}
+			const handleClick = () => {
+				const isWheels = this._inputWheels
+					? this._inputWheels.checked
+					: undefined;
+				action.onClick({
+					isWheels,
+					price: this.priceValue,
+				});
+			};
+			this._button.addEventListener('click', handleClick);
 		}
 	}
 
 	// Метод для обновления цены в зависимости от состояния input_wheels
 	getPriceAdjustment(): number {
-		return this._inputWheels && this._inputWheels.checked ? 10 : -10;
+		return this._inputWheels && this._inputWheels.checked
+			? this.wheelsPrice
+			: -this.wheelsPrice;
 	}
 
 	// Метод для обновления цены
@@ -282,14 +318,26 @@ export class BasketElement extends Component<IBasketItem> {
 			10
 		);
 
-		currentPrice += this.getPriceAdjustment();
+		if (this._inputWheels) {
+			if (this._inputWheels.checked) {
+				currentPrice += this.wheelsPrice || 0;
+			} else {
+				currentPrice -= this.wheelsPrice || 0;
+			}
+		}
 
 		this.priceValue = currentPrice;
 
-		this.events.emit('basket:update-total');
+		// Обновляем состояние в родительском компоненте, если есть обработчик onChange
+		if (this.action?.onChange) {
+			this.action.onChange({
+				price: currentPrice,
+				isWheels: this._inputWheels?.checked,
+			});
+		}
 	}
 
-	private _priceValue: number = 0;
+	private _priceValue = 0;
 
 	get priceValue() {
 		return this._priceValue;
@@ -297,7 +345,7 @@ export class BasketElement extends Component<IBasketItem> {
 
 	set priceValue(value: number) {
 		this._priceValue = value;
-		this.price = value; // Обновление отображаемой цены
+		this.price = value;
 	}
 	//
 	set index(value: number) {
@@ -321,5 +369,9 @@ export class BasketElement extends Component<IBasketItem> {
 	// Отображает цену товаров в корзине
 	set price(value: number) {
 		this.setText(this._price, `${value} очков`);
+	}
+
+	set isWheels(value: boolean) {
+		this._inputWheels.checked = value;
 	}
 }

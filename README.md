@@ -1,4 +1,3 @@
-# FB assistant"
 
 Стек: HTML, SCSS, TS, Webpack
 

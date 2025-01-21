@@ -1,4 +1,11 @@
-import { ICardItem, IOrder, ITehListEtem } from '../../types';
+import {
+	ICardItem,
+	IListItem,
+	IOrder,
+	ITehListEtem,
+	ITehListWheelsEtem,
+	IFightingMachineItem,
+} from '../../types';
 import { Api } from '../base/api';
 import { localArmy } from '../../types/warriorsData';
 import { localWeapons, localWeaponsWheels } from '../../types/weaponsData';
@@ -24,7 +31,7 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 	}
 
 	// Функция для обработки путей изображений в description
-	getWarriorsItem(id: string): Promise<ICardItem> {
+	getWarriorsItem(id: string): Promise<IListItem> {
 		const item = localArmy.find((i) => i.id === id);
 		if (!item) {
 			return Promise.reject('Item not found');
@@ -44,8 +51,9 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 
 		return Promise.resolve({
 			...item,
-			image: imageUrl, // Обновленный путь для картинки
-			description: descriptionHtml, // Обновленное описание
+			type: 'list',
+			image: imageUrl,
+			description: descriptionHtml,
 		});
 	}
 
@@ -62,12 +70,13 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 				: `${process.env.PUBLIC_URL}${item.image}`;
 
 		return Promise.resolve({
+			type: 'tech',
 			...item,
-			image: imageUrl, // Обновленный путь для картинки
+			image: imageUrl,
 		});
 	}
 
-	getWeaponsWheelsItem(id: string): Promise<ITehListEtem> {
+	getWeaponsWheelsItem(id: string): Promise<ITehListWheelsEtem> {
 		const item = localWeaponsWheels.find((i) => i.id === id);
 		if (!item) {
 			return Promise.reject('Item not found');
@@ -80,8 +89,31 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 				: `${process.env.PUBLIC_URL}${item.image}`;
 
 		return Promise.resolve({
+			type: 'wheels',
 			...item,
-			image: imageUrl, // Обновленный путь для картинки
+			wheelsPrice: 10,
+			isWheels: false,
+			image: imageUrl,
+		});
+	}
+
+	getFightingMachineItem(id: string): Promise<IFightingMachineItem> {
+		const item = localfightMachine.find((i) => i.id === id);
+		if (!item) {
+			return Promise.reject('Item not found');
+		}
+
+		// Обрабатываем описание с картинками
+		const imageUrl =
+			item.image.startsWith('http') || item.image.startsWith('https')
+				? item.image
+				: `${process.env.PUBLIC_URL}${item.image}`;
+
+		return Promise.resolve({
+			type: 'machine',
+			...item,
+			weapons: item.weapons.map((weapon) => ({ ...weapon, quantity: 0 })),
+			image: imageUrl,
 		});
 	}
 
@@ -101,8 +133,9 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 
 				return {
 					...item,
-					image: imageUrl, // Обработанный путь для картинки
-					description: descriptionHtml, // Обновленное описание
+					type: 'list',
+					image: imageUrl,
+					description: descriptionHtml,
 				};
 			})
 		);
@@ -118,13 +151,14 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 
 				return {
 					...item,
+					type: 'tech',
 					image: imageUrl, // Обработанный путь для картинки
 				};
 			})
 		);
 	}
 
-	getWeaponsWheelsList(): Promise<ITehListEtem[]> {
+	getWeaponsWheelsList(): Promise<ITehListWheelsEtem[]> {
 		return Promise.resolve(
 			localWeaponsWheels.map((item) => {
 				const imageUrl =
@@ -134,7 +168,30 @@ export class WebLarekAPI extends Api implements IAuctionAPI {
 
 				return {
 					...item,
+					type: 'wheels',
+					wheelsPrice: 10,
 					image: imageUrl, // Обработанный путь для картинки
+				};
+			})
+		);
+	}
+
+	getFightingMachineList(): Promise<IFightingMachineItem[]> {
+		return Promise.resolve(
+			localfightMachine.map((item) => {
+				const imageUrl =
+					item.image.startsWith('http') || item.image.startsWith('https')
+						? item.image
+						: `${process.env.PUBLIC_URL}${item.image}`;
+
+				return {
+					type: 'machine',
+					...item,
+					weapons: item.weapons.map((weapon) => ({
+						...weapon,
+						quantity: 0,
+					})),
+					image: imageUrl,
 				};
 			})
 		);
