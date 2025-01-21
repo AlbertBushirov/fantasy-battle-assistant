@@ -32,6 +32,11 @@ const cardBasketTemplateWheels = ensureElement<HTMLTemplateElement>(
 	'#card-basket_wheels'
 );
 
+//Ссылки на категории
+const fightingMachinesLink = document.getElementById(
+	'fighting-machines-link'
+) as HTMLAnchorElement;
+
 // Инициализация состояния приложения
 const appData = new AppData({}, events);
 
@@ -114,14 +119,6 @@ events.on('basket:changed', () => {
 	basket.total = total;
 });
 
-let scrollPosition: number = 0; // Переменная для хранения позиции прокрутки
-
-// Сохранение положения прокрутки перед открытием превью
-events.on('card:select', (item: ICardItem) => {
-	scrollPosition = window.scrollY; // Сохраняем текущее положение прокрутки
-	appData.setPreview(item);
-});
-
 // Обработчики изменения предпросмотра продукта и добавления в корзину
 events.on('preview:changed', (item: ICardItem) => {
 	if (item && item.type === 'list') {
@@ -153,7 +150,6 @@ events.on('preview:changed', (item: ICardItem) => {
 					button: buttonTitle,
 				}),
 			});
-			window.scrollTo(0, scrollPosition);
 		});
 	}
 });

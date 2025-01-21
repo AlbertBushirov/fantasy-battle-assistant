@@ -20,7 +20,7 @@ export class Basket extends Component<IBasketView> {
 	protected _button: HTMLButtonElement;
 	protected _image?: HTMLImageElement;
 	protected _description?: HTMLImageElement;
-	protected _inputWheels: HTMLInputElement;
+	protected _footerPrice: HTMLElement;
 
 	constructor(container: HTMLElement, protected events: EventEmitter) {
 		super(container);
@@ -28,7 +28,7 @@ export class Basket extends Component<IBasketView> {
 		this._list = ensureElement<HTMLElement>('.basket__list', this.container);
 		this._total = this.container.querySelector('.basket__price');
 		this._buttonBasket = this.container.querySelector('.basket__button');
-
+		this._footerPrice = document.querySelector('.footer_price');
 		if (this._buttonBasket) {
 			this._buttonBasket.addEventListener('click', () => {
 				events.emit('order:open');
@@ -53,8 +53,20 @@ export class Basket extends Component<IBasketView> {
 	set total(total: number) {
 		if (this._total) {
 			this.setText(this._total, `${total.toString()} очков`);
+			this.updateFooterPrice(total); // Обновляем сумму в footer
 		} else {
 			console.warn('Element for total price is not found.');
+		}
+	}
+
+	private updateFooterPrice(total: number) {
+		if (this._footerPrice) {
+			this.setText(
+				this._footerPrice,
+				`Сумма ростера: ${total.toString()} очков`
+			);
+		} else {
+			console.warn('Element for footer price is not found.');
 		}
 	}
 }

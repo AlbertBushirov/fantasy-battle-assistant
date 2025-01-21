@@ -31,7 +31,7 @@
 							<li><a class="" href="">Отряды</a></li>
 							<li><a class="" href="#gvs">Особые Боевые Единицы</a></li>
 							<li><a class="" href="#tehlist">Орудия</a></li>
-							<li><a href="">Боевые машины</a></li>
+							<li><a id="fighting-machines-link" href="#">Боевые машины</a></li>
 							<li></li>
 						</ul>
 					</nav>
@@ -54,10 +54,10 @@
 		<template id="card-catalog">
 			<div class="gallery__item card">
 				<button class="gallery__item card">
-					<span class="card__category card__category_soft"></span>
-					<h2 class="card__title"></h2>
+					<span class="card__category card__category_soft">софт-скил</span>
+					<h2 class="card__title">+1 час в сутках</h2>
 					<div class="card__row">
-						<span class="card__price"></span>
+						<span class="card__price">1000 синапсов</span>
 					</div>
 				</button>
 			</div>
@@ -111,7 +111,7 @@
 		</template>
 
 		<template id="card-fighting_machine">
-			<div class="card card_fighting_machine" id="card-fighting_machine">
+			<div class="card card_fighting_machine">
 				<img
 					class="card__image img__machine"
 					src=""
@@ -186,7 +186,9 @@
 				></button>
 			</li>
 		</template>
-
+		<div class="footer">
+			<span class="footer_price">Сумма ростера: 0 очков</span>
+		</div>
 		<template id="basket">
 			<div class="basket">
 				<h2 class="modal__title">Просмотр армии</h2>
