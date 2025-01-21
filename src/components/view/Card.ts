@@ -19,7 +19,7 @@ const category: Category = {
 	'Боевое существо': 'card__category_additional',
 	'Легионеры Некроманта': 'card__category_nekromant',
 	'Гвардия Чародея': 'card__category_charodey',
-	'Боевая машина': 'card__category_other',
+	'Боевая машина': 'card__category_additional',
 	Техлист: 'card__category_other',
 	кнопка: 'card__category_button',
 	другое: 'card__category_other',
