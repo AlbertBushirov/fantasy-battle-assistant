@@ -4,6 +4,10 @@
 .header {
 	height: $headerHeight;
 	background-color: $primary;
+	position: fixed;
+	top: 0; /* Прикрепляем к верху */
+	left: 0;
+	right: 0;
 
 	&__container {
 		@include mixins.container(1px, 1px);

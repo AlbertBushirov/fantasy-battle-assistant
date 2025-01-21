@@ -1,17 +1,12 @@
-import {cloneTemplate, ensureElement} from '../../utils/utils';
+import { cloneTemplate, ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
 import { EventEmitter } from '../base/events';
-import {ICardItem, IItemWeapons} from '../../types';
-import {Weapon} from "./Weapon";
+import { ICardItem, IItemWeapons } from '../../types';
+import { Weapon } from './Weapon';
 
 interface ICardActions {
 	onClick: (event: { isWheels?: boolean; price?: number }) => void;
 	onChange?: (data: { isWheels?: boolean; price?: number }) => void;
-}
-
-export interface ICardMachineActions {
-	onClick: (event: { weaponPrices?: number; price?: number }) => void;
-	onChange?: (data: { weaponPrices?: number; price?: number }) => void;
 }
 
 interface Category {
@@ -46,15 +41,15 @@ export class Card extends Component<ICardItem> {
 	public _inputWheels: HTMLInputElement;
 	protected basketElement?: BasketElement;
 	protected wheelsPrice?: number;
-	protected _weapons?: HTMLInputElement
-	protected weapons?: IItemWeapons
+	protected _weapons?: HTMLInputElement;
+	protected weapons?: IItemWeapons;
 	public volumeLevels: number[];
 	protected weaponNumperElements: HTMLElement[] = [];
 
 	constructor(
 		protected blockName: string,
 		container: HTMLElement,
-		action?: ICardActions | ICardMachineActions
+		action?: ICardActions
 	) {
 		super(container, new EventEmitter()); // Инициализация EventEmitter
 		this._category = container.querySelector('.card__category');
@@ -94,7 +89,7 @@ export class Card extends Component<ICardItem> {
 		if (this.totalWeaponCount() < 2) {
 			// Проверка на общую сумму
 			this.weapons[index].quantity++;
-			this.renderWeapons(this.weapons)
+			this.renderWeapons(this.weapons);
 			this.BasedOnWeapon();
 		} else {
 			console.warn('Общая сумма weapon_numper не может превышать 2');
@@ -104,7 +99,7 @@ export class Card extends Component<ICardItem> {
 	private decreaseWeaponCount(index: number) {
 		if (this.weapons[index].quantity > 0) {
 			this.weapons[index].quantity--;
-			this.renderWeapons(this.weapons)
+			this.renderWeapons(this.weapons);
 			this.BasedOnWeapon(); // Обновляем цену на основе оружия
 		}
 	}
@@ -150,9 +145,12 @@ export class Card extends Component<ICardItem> {
 	}
 
 	public BasedOnWeapon() {
-		const weaponsPrice = this.weapons?.reduce((total, weapon) => total + weapon.price * weapon.quantity, 0)
+		const weaponsPrice = this.weapons?.reduce(
+			(total, weapon) => total + weapon.price * weapon.quantity,
+			0
+		);
 
-		this.price = this.priceValue + weaponsPrice
+		this.price = this.priceValue + weaponsPrice;
 		this.notifyBasketChanged(); // Уведомляем о изменении корзины
 	}
 
@@ -221,31 +219,33 @@ export class Card extends Component<ICardItem> {
 	}
 
 	renderWeapons(weapons: IItemWeapons) {
-
 		if (weapons && this._weapons) {
 			const weaponsElements = weapons.map((weapon, index) => {
-				const container = cloneTemplate('#weapon')
+				const container = cloneTemplate('#weapon');
 				const weaponEl = new Weapon(container, {
 					increase: () => {
-						this.increaseWeaponCount(index)
+						this.increaseWeaponCount(index);
 					},
 					decrease: () => {
-						this.decreaseWeaponCount(index)
-					}
-				})
-				return weaponEl.render({ ...weapon, isMax: this.totalWeaponCount() >= 2 })
-			})
-			this._weapons.replaceChildren(...weaponsElements)
+						this.decreaseWeaponCount(index);
+					},
+				});
+				return weaponEl.render({
+					...weapon,
+					isMax: this.totalWeaponCount() >= 2,
+				});
+			});
+			this._weapons.replaceChildren(...weaponsElements);
 		}
 	}
 
 	render(data: ICardItem): HTMLElement {
 		const element = super.render(data);
-		this.priceValue = data.price
+		this.priceValue = data.price;
 		if ('weapons' in data) {
-			this.renderWeapons(data.weapons)
+			this.renderWeapons(data.weapons);
 		}
-		return element
+		return element;
 	}
 }
 

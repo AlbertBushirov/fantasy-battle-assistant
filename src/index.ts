@@ -31,6 +31,9 @@ const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 const cardBasketTemplateWheels = ensureElement<HTMLTemplateElement>(
 	'#card-basket_wheels'
 );
+const cardBasketTemplateMachine = ensureElement<HTMLTemplateElement>(
+	'#card-basket_fighting_machine'
+);
 
 // Инициализация состояния приложения
 const appData = new AppData({}, events);
@@ -64,7 +67,6 @@ events.on('product:delete', (item: ICardItem) => {
 	appData.removeFromBasket(item.id);
 });
 
-//Обработчик изменения в корзине и обновления общей стоимости
 const order: Record<string, number> = {
 	list: 1,
 	tech: 2,
@@ -72,16 +74,15 @@ const order: Record<string, number> = {
 	machine: 4,
 };
 
-// Обработчик события
+//Обработчик изменения в корзине и обновления общей стоимости
 events.on('basket:changed', () => {
 	page.counter = appData.getOrderProducts().length;
 	let total = 0;
 
-	// Получаем продукты из корзины и сортируем их по определённому порядку
 	const sortedItems = appData
 		.getOrderProducts()
 		.sort((a: ICardItem, b: ICardItem) => {
-			return (order[a.type] || 5) - (order[b.type] || 5); // Порядок сортировки по типу
+			return (order[a.type] || 5) - (order[b.type] || 5);
 		});
 
 	basket.items = sortedItems.map((item, index) => {
@@ -116,7 +117,7 @@ events.on('basket:changed', () => {
 	basket.total = total;
 });
 
-// Обработчик изменения предпросмотра продукта и добавления в корзину
+// Обработчики изменения предпросмотра продукта и добавления в корзину
 
 events.on('preview:changed', (item: ICardItem) => {
 	if (item && item.type === 'list') {

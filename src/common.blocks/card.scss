@@ -69,7 +69,11 @@ html {
 
 	&__column {
 		@include mixins.flex(column);
+
 		align-items: flex-start;
+		&__UNL {
+			gap: 20px;
+		}
 	}
 
 	&__row {
