@@ -13,6 +13,7 @@ export class Page extends Component<IPage> {
 	protected _catalog: HTMLElement;
 	protected _wrapper: HTMLElement;
 	protected _basket: HTMLElement;
+	protected _modal: HTMLElement;
 
 	constructor(container: HTMLElement, protected events: IEvents) {
 		super(container);
@@ -24,6 +25,7 @@ export class Page extends Component<IPage> {
 		this._catalog = ensureElement<HTMLElement>('.gallery', container);
 		this._wrapper = ensureElement<HTMLElement>('.page__wrapper', container);
 		this._basket = ensureElement<HTMLElement>('.header__basket', container);
+		this._modal = ensureElement<HTMLElement>('.modal__container', container);
 
 		// обработчик клика на корзину
 		this._basket.addEventListener('click', () => {
@@ -41,5 +43,6 @@ export class Page extends Component<IPage> {
 
 	set locked(value: boolean) {
 		this.toggleClass(this._wrapper, 'page__wrapper_locked', value);
+		this.toggleClass(this._modal, 'modal__container_locked', value);
 	}
 }

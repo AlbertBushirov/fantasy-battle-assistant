@@ -33,7 +33,7 @@ export class AppData extends Model<IProductItem> {
 		}
 	}
 
-	//Проверка, находится ли продукт в заказе.
+	//Проверка, находится ли продукт в корзине.
 	productOrder(item: ICardItem): boolean {
 		return Boolean(this.basket.find((basketItem) => basketItem.id === item.id));
 	}

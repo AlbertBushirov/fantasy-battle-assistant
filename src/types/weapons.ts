@@ -69,3 +69,15 @@ export const swordSaw: Weapon = {
 	title: 'Меч-пила',
 	price: 20,
 };
+
+//оружия Минометов
+
+export const projectile: Weapon = {
+	title: 'Арт-снаряд',
+	price: 20,
+};
+
+export const rocketProjectile: Weapon = {
+	title: 'Ракетный снаряд',
+	price: 20,
+};

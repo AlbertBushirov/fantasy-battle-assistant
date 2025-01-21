@@ -31,9 +31,6 @@ const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 const cardBasketTemplateWheels = ensureElement<HTMLTemplateElement>(
 	'#card-basket_wheels'
 );
-const cardBasketTemplateMachine = ensureElement<HTMLTemplateElement>(
-	'#card-basket_fighting_machine'
-);
 
 // Инициализация состояния приложения
 const appData = new AppData({}, events);
@@ -117,8 +114,15 @@ events.on('basket:changed', () => {
 	basket.total = total;
 });
 
-// Обработчики изменения предпросмотра продукта и добавления в корзину
+let scrollPosition: number = 0; // Переменная для хранения позиции прокрутки
 
+// Сохранение положения прокрутки перед открытием превью
+events.on('card:select', (item: ICardItem) => {
+	scrollPosition = window.scrollY; // Сохраняем текущее положение прокрутки
+	appData.setPreview(item);
+});
+
+// Обработчики изменения предпросмотра продукта и добавления в корзину
 events.on('preview:changed', (item: ICardItem) => {
 	if (item && item.type === 'list') {
 		api.getWarriorsItem(item.id).then((res) => {
@@ -149,6 +153,7 @@ events.on('preview:changed', (item: ICardItem) => {
 					button: buttonTitle,
 				}),
 			});
+			window.scrollTo(0, scrollPosition);
 		});
 	}
 });
@@ -245,17 +250,8 @@ events.on('basket:open', () => {
 	});
 });
 
-events.on('basket:success', () => {
-	events.emit('order:completed');
-});
-
-events.on('counter:changed', () => {
-	page.counter = appData.basket.length;
-	console.log(page.counter);
-});
-
 // Блокировка прокрутки страницы
-events.on('modal:open', () => {
+events.on('basket:open', () => {
 	page.locked = true;
 });
 
