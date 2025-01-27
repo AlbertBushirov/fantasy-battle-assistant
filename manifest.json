@@ -1,0 +1,22 @@
+{
+	"name": "battle-fantasy_assistent",
+	"short_name": "bf-assistent",
+	"description": "player assistant to introduce you to fantasy battles",
+	"icons": [
+		{
+			"src": "icons/icon-32.png",
+			"sizes": "32x32",
+			"type": "/favicon-32x32.png"
+		},
+
+		{
+			"src": "icons/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
+	],
+	"start_url": "/pwa-examples/js13kpwa/index.html",
+	"display": "fullscreen",
+	"theme_color": "#B12A34",
+	"background_color": "#B12A34"
+}
