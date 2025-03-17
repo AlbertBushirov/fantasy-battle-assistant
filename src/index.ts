@@ -232,15 +232,15 @@ events.on('preview:changed', (item: ICardItem) => {
 			item.title = res.title;
 			item.image = res.image;
 			item.price = res.price;
+			item.weapons = res.weapons;
 
 			// Создание карточки товара
 			const card = new Card('card', cloneTemplate(cardFightMachineTemplate), {
-				onClick: (formData: { weapons?: IItemWeapons }) => {
+				onClick: () => {
 					const newCartId = generateNewId();
 					events.emit('product:add', {
 						...item,
 						quantity: 0,
-						weapon: formData.weapons,
 						price: card.price,
 						id: newCartId,
 					});
