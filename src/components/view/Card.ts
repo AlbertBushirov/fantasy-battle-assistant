@@ -5,8 +5,13 @@ import { ICardItem, IItemWeapons } from '../../types';
 import { Weapon } from './Weapon';
 
 interface ICardActions {
-	onClick: (event: { isWheels?: boolean; price?: number }) => void;
+	onClick: (event: {
+		isWheels?: boolean;
+		price?: number;
+		weapons?: IItemWeapons;
+	}) => void;
 	onChange?: (data: { isWheels?: boolean; price?: number }) => void;
+	onChangeWeapon?: (data: { weapons?: IItemWeapons }) => void;
 }
 
 interface Category {
@@ -79,6 +84,14 @@ export class Card extends Component<ICardItem> {
 				container.addEventListener('click', handleAction);
 			}
 		}
+	}
+
+	resetWeaponCount() {
+		this.weapons.forEach((weapon) => {
+			weapon.quantity = 0;
+		});
+		this.renderWeapons(this.weapons);
+		this.BasedOnWeapon();
 	}
 
 	private totalWeaponCount(): number {
@@ -264,6 +277,8 @@ export class BasketElement extends Component<IBasketItem> {
 	protected _description?: HTMLImageElement;
 	protected _inputWheels?: HTMLInputElement;
 	protected wheelsPrice?: number;
+	protected _weapons?: HTMLInputElement;
+	protected weapons?: IItemWeapons;
 
 	constructor(
 		container: HTMLElement,
@@ -283,6 +298,7 @@ export class BasketElement extends Component<IBasketItem> {
 		this._inputWheels = container.querySelector(
 			'.input_wheels'
 		) as HTMLInputElement;
+		this._weapons = container.querySelector('.weapons-list');
 
 		this.events = events;
 
@@ -373,5 +389,78 @@ export class BasketElement extends Component<IBasketItem> {
 
 	set isWheels(value: boolean) {
 		this._inputWheels.checked = value;
+	}
+
+	private totalWeaponCount(): number {
+		return this.weapons.reduce((total, weapon) => total + weapon.quantity, 0);
+	}
+
+	private notifyBasketChanged() {
+		if (this.events) {
+			this.events.emit('basket:changed');
+		} else {
+			console.error('Events manager is not initialized');
+		}
+	}
+
+	private increaseWeaponCount(index: number) {
+		if (this.totalWeaponCount() < 2) {
+			// Проверка на общую сумму
+			this.weapons[index].quantity++;
+			this.renderWeapons(this.weapons);
+			this.BasedOnWeapon();
+		} else {
+			console.warn('Общая сумма weapon_numper не может превышать 2');
+		}
+	}
+
+	private decreaseWeaponCount(index: number) {
+		if (this.weapons[index].quantity > 0) {
+			this.weapons[index].quantity--;
+			this.renderWeapons(this.weapons);
+			this.BasedOnWeapon();
+		}
+	}
+
+	public BasedOnWeapon() {
+		const weaponsPrice = this.weapons?.reduce(
+			(total, weapon) => total + weapon.price * weapon.quantity,
+			0
+		);
+
+		this.price = this.priceValue + weaponsPrice;
+		this.notifyBasketChanged();
+	}
+
+	renderWeapons(weapons: IItemWeapons) {
+		if (weapons && this._weapons) {
+			const selectedWeapons = weapons.filter((weapon) => weapon.quantity > 0);
+
+			const weaponsElements = selectedWeapons.map((weapon, index) => {
+				const container = cloneTemplate('#weapon');
+				const weaponEl = new Weapon(container, {
+					increase: () => {
+						this.increaseWeaponCount(index);
+					},
+					decrease: () => {
+						this.decreaseWeaponCount(index);
+					},
+				});
+				return weaponEl.render({
+					...weapon,
+					isMax: this.totalWeaponCount() >= 2,
+				});
+			});
+			this._weapons.replaceChildren(...weaponsElements);
+		}
+	}
+
+	render(data: ICardItem): HTMLElement {
+		const element = super.render(data);
+		this.priceValue = data.price;
+		if ('weapons' in data) {
+			this.renderWeapons(data.weapons);
+		}
+		return element;
 	}
 }

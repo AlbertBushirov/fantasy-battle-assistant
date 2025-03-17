@@ -1,6 +1,11 @@
 import './scss/styles.scss';
 import { API_URL, CDN_URL } from './utils/constants';
-import { ICardItem, ITehListWheelsEtem } from './types/index';
+import {
+	ICardItem,
+	ITehListWheelsEtem,
+	IFightingMachineItem,
+	IItemWeapons,
+} from './types/index';
 import { EventEmitter } from './components/base/events';
 import { WebLarekAPI } from './components/data/ExtensionApi';
 import { AppData, CatalogChangeEvent } from './components/data/AppData';
@@ -31,11 +36,9 @@ const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 const cardBasketTemplateWheels = ensureElement<HTMLTemplateElement>(
 	'#card-basket_wheels'
 );
-
-//Ссылки на категории
-const fightingMachinesLink = document.getElementById(
-	'fighting-machines-link'
-) as HTMLAnchorElement;
+const cardBasketTemplateFM = ensureElement<HTMLTemplateElement>(
+	'#card-basket_fighting_machine'
+);
 
 // Инициализация состояния приложения
 const appData = new AppData({}, events);
@@ -93,6 +96,8 @@ events.on('basket:changed', () => {
 		// Выбор шаблона в зависимости от типа товара
 		if (item.type === 'wheels') {
 			cardTemplate = cardBasketTemplateWheels;
+		} else if (item.type === 'machine') {
+			cardTemplate = cardBasketTemplateFM;
 		} else {
 			cardTemplate = cardBasketTemplate;
 		}
@@ -108,6 +113,11 @@ events.on('basket:changed', () => {
 				}
 
 				basket.total = appData.getTotalPrice();
+			},
+			onChangeWeapon: ({ weapons }) => {
+				if (item.type === 'machine') {
+					(appData.basket[index] as IFightingMachineItem).weapons = weapons;
+				}
 			},
 		});
 
@@ -210,6 +220,10 @@ events.on('preview:changed', (item: ICardItem) => {
 	}
 });
 
+function generateNewId(): string {
+	return '' + Math.random().toString(36).substr(2, 9);
+}
+
 events.on('preview:changed', (item: ICardItem) => {
 	if (item && item.type === 'machine') {
 		api.getFightingMachineItem(item.id).then((res) => {
@@ -221,10 +235,14 @@ events.on('preview:changed', (item: ICardItem) => {
 
 			// Создание карточки товара
 			const card = new Card('card', cloneTemplate(cardFightMachineTemplate), {
-				onClick: () => {
+				onClick: (formData: { weapons?: IItemWeapons }) => {
+					const newCartId = generateNewId();
 					events.emit('product:add', {
 						...item,
+						quantity: 0,
+						weapon: formData.weapons,
 						price: card.price,
+						id: newCartId,
 					});
 				},
 			});
@@ -235,6 +253,7 @@ events.on('preview:changed', (item: ICardItem) => {
 					...item,
 				}),
 			});
+			card.resetWeaponCount();
 		});
 	}
 });
